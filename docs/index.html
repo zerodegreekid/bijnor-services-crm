@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bijnor Services - Samsung Service Center & Claims Processing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    <style>
+        .hero-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .status-registered { background: #dbeafe; color: #1e40af; }
+        .status-verified { background: #dcfce7; color: #166534; }
+        .status-assigned { background: #fef3c7; color: #92400e; }
+        .status-in-progress { background: #fde68a; color: #d97706; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-settled { background: #ecfdf5; color: #047857; }
+        .dealer-level-1 { background: #f3f4f6; color: #374151; }
+        .dealer-level-2 { background: #dbeafe; color: #1e40af; }
+        .dealer-level-3 { background: #fef3c7; color: #d97706; }
+        .dealer-level-4 { background: #dcfce7; color: #166534; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-tools text-blue-600 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-gray-800">Bijnor Services</span>
+                        <span class="ml-2 text-sm text-gray-500">Samsung • Bajaj Allianz</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showSection('home')" class="nav-btn text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Home</button>
+                    <button onclick="showSection('services')" class="nav-btn text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Services</button>
+                    <button onclick="showSection('claims')" class="nav-btn text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Claims</button>
+                    <button onclick="showSection('contact')" class="nav-btn text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Contact</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <div id="home-section" class="section">
+        <!-- Hero Section -->
+        <div class="hero-gradient text-white py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                        <i class="fas fa-mobile-alt mr-4"></i>Bijnor Services
+                    </h1>
+                    <p class="text-xl md:text-2xl mb-8 text-blue-100">
+                        Authorized Samsung Service Center • Bajaj Allianz Insurance Claims Partner
+                    </p>
+                    <div class="flex flex-col md:flex-row gap-4 justify-center">
+                        <button onclick="showSection('services')" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+                            <i class="fas fa-wrench mr-2"></i>Samsung Services
+                        </button>
+                        <button onclick="showSection('claims')" class="bg-yellow-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-yellow-600 transition-colors">
+                            <i class="fas fa-shield-alt mr-2"></i>Insurance Claims
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Channels -->
+        <div class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Get in Touch</h2>
+                <div class="grid md:grid-cols-4 gap-6">
+                    <a href="https://wa.me/918006999806" target="_blank" class="card-hover bg-green-50 p-6 rounded-lg text-center border border-green-200">
+                        <i class="fab fa-whatsapp text-4xl text-green-500 mb-4"></i>
+                        <h3 class="font-semibold text-gray-900">WhatsApp Support</h3>
+                        <p class="text-gray-600 text-sm">+91 8006999806</p>
+                    </a>
+                    <a href="https://www.facebook.com/bijnorservices" target="_blank" class="card-hover bg-blue-50 p-6 rounded-lg text-center border border-blue-200">
+                        <i class="fab fa-facebook text-4xl text-blue-500 mb-4"></i>
+                        <h3 class="font-semibold text-gray-900">Facebook</h3>
+                        <p class="text-gray-600 text-sm">Follow Us</p>
+                    </a>
+                    <a href="http://www.bijnorservices.in/" target="_blank" class="card-hover bg-purple-50 p-6 rounded-lg text-center border border-purple-200">
+                        <i class="fas fa-globe text-4xl text-purple-500 mb-4"></i>
+                        <h3 class="font-semibold text-gray-900">Website</h3>
+                        <p class="text-gray-600 text-sm">Visit Portal</p>
+                    </a>
+                    <a href="https://maps.app.goo.gl/Q8jusQuafzFFhJ278" target="_blank" class="card-hover bg-red-50 p-6 rounded-lg text-center border border-red-200">
+                        <i class="fas fa-map-marker-alt text-4xl text-red-500 mb-4"></i>
+                        <h3 class="font-semibold text-gray-900">Location</h3>
+                        <p class="text-gray-600 text-sm">Get Directions</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Stats -->
+        <div class="py-16 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid md:grid-cols-4 gap-8">
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-blue-600 mb-2">5000+</div>
+                        <div class="text-gray-600">Devices Repaired</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-green-600 mb-2">98%</div>
+                        <div class="text-gray-600">Customer Satisfaction</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-yellow-600 mb-2">24/7</div>
+                        <div class="text-gray-600">Support Available</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-purple-600 mb-2">1000+</div>
+                        <div class="text-gray-600">Claims Processed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services Section -->
+    <div id="services-section" class="section hidden">
+        <div class="py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Our Services</h2>
+                
+                <!-- Samsung Services -->
+                <div class="mb-16">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-8 flex items-center">
+                        <i class="fas fa-mobile-alt text-blue-600 mr-3"></i>
+                        Samsung Device Services
+                    </h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                            <i class="fas fa-wrench text-3xl text-blue-500 mb-4"></i>
+                            <h4 class="font-semibold text-gray-900 mb-2">Device Repair</h4>
+                            <p class="text-gray-600">Professional Samsung device repair with genuine parts</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                            <i class="fas fa-shield-alt text-3xl text-green-500 mb-4"></i>
+                            <h4 class="font-semibold text-gray-900 mb-2">Warranty Service</h4>
+                            <p class="text-gray-600">Authorized warranty repairs and replacements</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                            <i class="fas fa-tools text-3xl text-purple-500 mb-4"></i>
+                            <h4 class="font-semibold text-gray-900 mb-2">Maintenance</h4>
+                            <p class="text-gray-600">Regular maintenance and software updates</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Insurance Services -->
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-8 flex items-center">
+                        <i class="fas fa-umbrella text-yellow-600 mr-3"></i>
+                        Bajaj Allianz Insurance Claims
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                            <i class="fas fa-truck text-3xl text-blue-500 mb-4"></i>
+                            <h4 class="font-semibold text-gray-900 mb-2">Pickup & Drop Service</h4>
+                            <p class="text-gray-600">Complete claim handling with device pickup and delivery</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                            <i class="fas fa-money-bill-wave text-3xl text-green-500 mb-4"></i>
+                            <h4 class="font-semibold text-gray-900 mb-2">Reimbursement Claims</h4>
+                            <p class="text-gray-600">Process external repair reimbursements</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Claims Section -->
+    <div id="claims-section" class="section hidden">
+        <div class="py-16">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Submit Insurance Claim</h2>
+                
+                <form id="claimsForm" class="bg-white p-8 rounded-lg shadow-lg">
+                    <!-- Customer Information -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Customer Information</h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Full Name *</label>
+                                <input type="text" id="customerName" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Phone Number *</label>
+                                <input type="tel" id="customerPhone" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Email</label>
+                                <input type="email" id="customerEmail" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Address *</label>
+                                <textarea id="customerAddress" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Device Information -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Device Information</h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Device Brand *</label>
+                                <select id="deviceBrand" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Brand</option>
+                                    <option value="Samsung">Samsung</option>
+                                    <option value="Apple">Apple</option>
+                                    <option value="OnePlus">OnePlus</option>
+                                    <option value="Oppo">Oppo</option>
+                                    <option value="Vivo">Vivo</option>
+                                    <option value="Xiaomi">Xiaomi</option>
+                                    <option value="Realme">Realme</option>
+                                    <option value="Motorola">Motorola</option>
+                                    <option value="Nothing">Nothing</option>
+                                    <option value="Tecno">Tecno</option>
+                                    <option value="Infinix">Infinix</option>
+                                    <option value="iTel">iTel</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Device Model *</label>
+                                <input type="text" id="deviceModel" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">IMEI Number *</label>
+                                <input type="text" id="deviceImei" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Purchase Date *</label>
+                                <input type="date" id="purchaseDate" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Incident Details -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Incident Details</h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Incident Type *</label>
+                                <select id="incidentType" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Type</option>
+                                    <option value="Physical Damage">Physical Damage</option>
+                                    <option value="Liquid Damage">Liquid Damage</option>
+                                    <option value="Theft">Theft</option>
+                                    <option value="Screen Break">Screen Break</option>
+                                    <option value="Hardware Failure">Hardware Failure</option>
+                                    <option value="Software Issue">Software Issue</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Incident Date *</label>
+                                <input type="date" id="incidentDate" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-gray-700 font-medium mb-2">Incident Description *</label>
+                                <textarea id="incidentDescription" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Service Type -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Service Preference</h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="border border-gray-300 p-4 rounded-lg">
+                                <label class="flex items-center">
+                                    <input type="radio" name="serviceType" value="Pickup & Drop" class="mr-3">
+                                    <div>
+                                        <div class="font-semibold">Pickup & Drop</div>
+                                        <div class="text-gray-600 text-sm">We collect and deliver your device</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="border border-gray-300 p-4 rounded-lg">
+                                <label class="flex items-center">
+                                    <input type="radio" name="serviceType" value="Reimbursement" class="mr-3">
+                                    <div>
+                                        <div class="font-semibold">Reimbursement</div>
+                                        <div class="text-gray-600 text-sm">Get repaired externally and claim reimbursement</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>Submit Claim
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div id="contact-section" class="section hidden">
+        <div class="py-16">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Contact Information</h2>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Contact Details -->
+                    <div class="bg-white p-8 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold mb-6">Get in Touch</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-phone text-blue-500 w-6"></i>
+                                <span class="ml-3">+91 8006999806</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-envelope text-blue-500 w-6"></i>
+                                <span class="ml-3">info@bijnorservices.in</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-clock text-blue-500 w-6"></i>
+                                <span class="ml-3">10:00 AM - 6:30 PM, Mon-Sat</span>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-map-marker-alt text-blue-500 w-6 mt-1"></i>
+                                <span class="ml-3">Civil Line, Bijnor, UP 246701</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="bg-white p-8 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold mb-6">Quick Links</h3>
+                        <div class="space-y-3">
+                            <a href="https://wa.me/918006999806" target="_blank" class="flex items-center text-green-600 hover:text-green-700">
+                                <i class="fab fa-whatsapp w-6"></i>
+                                <span class="ml-3">WhatsApp Support</span>
+                            </a>
+                            <a href="https://wa.me/message/ZZ7O4VI3C64NA" target="_blank" class="flex items-center text-green-600 hover:text-green-700">
+                                <i class="fab fa-whatsapp w-6"></i>
+                                <span class="ml-3">WhatsApp Business</span>
+                            </a>
+                            <a href="https://www.facebook.com/bijnorservices" target="_blank" class="flex items-center text-blue-600 hover:text-blue-700">
+                                <i class="fab fa-facebook w-6"></i>
+                                <span class="ml-3">Facebook Page</span>
+                            </a>
+                            <a href="https://g.page/r/CTiSXfQxuNOZEBM/review" target="_blank" class="flex items-center text-red-600 hover:text-red-700">
+                                <i class="fab fa-google w-6"></i>
+                                <span class="ml-3">Google Reviews</span>
+                            </a>
+                            <a href="https://servicecenter.samsungdigitalservicecenter.com/authorised-samsung-service-center-bijnor-services-mobile-phone-repair-service-civil-line-bijnor-236981/Home" target="_blank" class="flex items-center text-blue-600 hover:text-blue-700">
+                                <i class="fas fa-external-link-alt w-6"></i>
+                                <span class="ml-3">Samsung Portal</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Bijnor Services</h3>
+                    <p class="text-gray-300">Authorized Samsung Service Center and Bajaj Allianz Insurance Claims Partner</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Services</h3>
+                    <ul class="text-gray-300 space-y-2">
+                        <li>Samsung Device Repair</li>
+                        <li>Warranty Services</li>
+                        <li>Insurance Claims Processing</li>
+                        <li>Technical Support</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact</h3>
+                    <p class="text-gray-300">Civil Line, Bijnor, UP 246701</p>
+                    <p class="text-gray-300">Phone: +91 8006999806</p>
+                    <p class="text-gray-300">Email: info@bijnorservices.in</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2025 Bijnor Services. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Navigation functionality
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName + '-section').classList.remove('hidden');
+            
+            // Update active nav button
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-100', 'text-blue-600');
+            });
+            event.target.classList.add('bg-blue-100', 'text-blue-600');
+        }
+
+        // Claims form functionality
+        document.getElementById('claimsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Generate claim number
+            const claimNumber = 'BA2025' + String(Date.now()).slice(-6);
+            
+            // Collect form data
+            const formData = {
+                claimNumber: claimNumber,
+                customerName: document.getElementById('customerName').value,
+                customerPhone: document.getElementById('customerPhone').value,
+                customerEmail: document.getElementById('customerEmail').value,
+                customerAddress: document.getElementById('customerAddress').value,
+                deviceBrand: document.getElementById('deviceBrand').value,
+                deviceModel: document.getElementById('deviceModel').value,
+                deviceImei: document.getElementById('deviceImei').value,
+                purchaseDate: document.getElementById('purchaseDate').value,
+                incidentType: document.getElementById('incidentType').value,
+                incidentDate: document.getElementById('incidentDate').value,
+                incidentDescription: document.getElementById('incidentDescription').value,
+                serviceType: document.querySelector('input[name="serviceType"]:checked')?.value
+            };
+            
+            // Store in localStorage (since this is a static site)
+            let claims = JSON.parse(localStorage.getItem('bijnorClaims') || '[]');
+            claims.push({
+                ...formData,
+                submittedAt: new Date().toISOString(),
+                status: 'Registered'
+            });
+            localStorage.setItem('bijnorClaims', JSON.stringify(claims));
+            
+            // Show success message
+            alert(`Claim submitted successfully!\n\nClaim Number: ${claimNumber}\n\nWe will contact you within 24 hours for further processing. You can also reach us on WhatsApp at +91 8006999806 for any updates.`);
+            
+            // Reset form
+            document.getElementById('claimsForm').reset();
+            
+            // Redirect to WhatsApp for immediate support
+            setTimeout(() => {
+                window.open(`https://wa.me/918006999806?text=Hi! I just submitted a claim with number ${claimNumber}. Please confirm receipt and next steps.`, '_blank');
+            }, 2000);
+        });
+
+        // Set today as max date for incident and purchase dates
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('incidentDate').max = today;
+        document.getElementById('purchaseDate').max = today;
+        
+        // Set default incident date to today
+        document.getElementById('incidentDate').value = today;
+    </script>
+</body>
+</html>
