@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { serveStatic } from 'hono/cloudflare-workers'
-import { type Bindings, type EnquiryFormData, type User } from './types'
+import type { Bindings, User, Customer, Enquiry, Accessory, Communication, EnquiryFormData } from './types'
 
 const app = new Hono<{ Bindings: Bindings }>()
 
@@ -13,10 +13,10 @@ app.use('/static/*', serveStatic({ root: './public' }))
 
 // Utility functions
 function generateTicketNumber(): string {
-  const date = new Date()
-  const year = date.getFullYear()
-  const month = (date.getMonth() + 1).toString().padStart(2, '0')
-  const day = date.getDate().toString().padStart(2, '0')
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
   const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
   return `BS${year}${month}${day}${random}`
 }
@@ -28,10 +28,11 @@ function generateSessionId(): string {
 async function hashPassword(password: string): Promise<string> {
   // Simple hash for demo - in production use proper bcrypt
   const encoder = new TextEncoder()
-  const data = encoder.encode(password + 'salt123')
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  const data = encoder.encode(password + 'salt')
+  const hash = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
 }
 
 async function verifyPassword(password: string, hash: string): Promise<boolean> {
@@ -39,229 +40,275 @@ async function verifyPassword(password: string, hash: string): Promise<boolean> 
   return hashedPassword === hash
 }
 
+// Authentication middleware
+async function requireAuth(c: any, next: () => Promise<void>) {
+  const sessionId = c.req.header('x-session-id')
+  if (!sessionId) {
+    return c.json({ error: 'Authentication required' }, 401)
+  }
+
+  const session = await c.env.DB.prepare('SELECT u.* FROM sessions s JOIN users u ON s.user_id = u.id WHERE s.id = ? AND s.expires_at > datetime("now")').bind(sessionId).first()
+  if (!session) {
+    return c.json({ error: 'Invalid or expired session' }, 401)
+  }
+
+  c.set('user', session)
+  await next()
+}
+
 // API Routes
 
-// Customer enquiry submission
-app.post('/api/enquiry', async (c) => {
-  try {
-    const data: EnquiryFormData = await c.req.json()
-    const { env } = c
-
-    // Check if customer exists
-    let customer = await env.DB.prepare(`
-      SELECT * FROM customers WHERE phone_number = ?
-    `).bind(data.phone_number).first()
-
-    if (!customer) {
-      // Create new customer
-      const customerResult = await env.DB.prepare(`
-        INSERT INTO customers (phone_number, name, email) VALUES (?, ?, ?)
-      `).bind(data.phone_number, data.customer_name, data.email || null).run()
-      
-      customer = { id: customerResult.meta.last_row_id }
-    }
-
-    // Create enquiry
-    const ticketNumber = generateTicketNumber()
-    const enquiryResult = await env.DB.prepare(`
-      INSERT INTO enquiries (
-        ticket_number, customer_id, imei, device_model, 
-        problem_description, warranty_status, insurance_status, 
-        service_type, source
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(
-      ticketNumber,
-      customer.id,
-      data.imei || null,
-      data.device_model,
-      data.problem_description,
-      data.warranty_status || 'unknown',
-      data.insurance_status || 'none',
-      data.service_type,
-      'web'
-    ).run()
-
-    return c.json({
-      success: true,
-      ticket_number: ticketNumber,
-      message: 'Enquiry submitted successfully'
-    })
-  } catch (error) {
-    console.error('Error submitting enquiry:', error)
-    return c.json({ success: false, message: 'Error submitting enquiry' }, 500)
-  }
-})
-
-// Staff login
+// Authentication
 app.post('/api/login', async (c) => {
-  try {
-    const { username, password } = await c.req.json()
-    const { env } = c
-
-    const user = await env.DB.prepare(`
-      SELECT * FROM users WHERE username = ? AND is_active = 1
-    `).bind(username).first() as User | null
-
-    if (!user || !(await verifyPassword(password, user.password_hash as any))) {
-      return c.json({ success: false, message: 'Invalid credentials' }, 401)
-    }
-
-    // Create session
-    const sessionId = generateSessionId()
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-
-    await env.DB.prepare(`
-      INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)
-    `).bind(sessionId, user.id, expiresAt.toISOString()).run()
-
-    return c.json({
-      success: true,
-      session_id: sessionId,
-      user: {
-        id: user.id,
-        username: user.username,
-        full_name: user.full_name,
-        role: user.role
-      }
-    })
-  } catch (error) {
-    console.error('Login error:', error)
-    return c.json({ success: false, message: 'Login failed' }, 500)
+  const { username, password } = await c.req.json()
+  
+  const user = await c.env.DB.prepare('SELECT * FROM users WHERE username = ? AND is_active = 1').bind(username).first()
+  if (!user || !(await verifyPassword(password, user.password_hash))) {
+    return c.json({ error: 'Invalid credentials' }, 401)
   }
+
+  const sessionId = generateSessionId()
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+
+  await c.env.DB.prepare('INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)').bind(sessionId, user.id, expiresAt).run()
+
+  return c.json({ 
+    success: true, 
+    sessionId,
+    user: { 
+      id: user.id, 
+      username: user.username, 
+      full_name: user.full_name, 
+      role: user.role 
+    } 
+  })
 })
 
-// IMEI/Phone lookup
-app.get('/api/lookup/:type/:value', async (c) => {
-  try {
-    const type = c.req.param('type') // 'imei' or 'phone'
-    const value = c.req.param('value')
-    const { env } = c
-
-    let query = ''
-    if (type === 'imei') {
-      query = `
-        SELECT e.*, c.name as customer_name, c.phone_number, c.email as customer_email
-        FROM enquiries e
-        LEFT JOIN customers c ON e.customer_id = c.id
-        WHERE e.imei = ?
-        ORDER BY e.created_at DESC
-      `
-    } else if (type === 'phone') {
-      query = `
-        SELECT e.*, c.name as customer_name, c.phone_number, c.email as customer_email
-        FROM enquiries e
-        LEFT JOIN customers c ON e.customer_id = c.id
-        WHERE c.phone_number = ?
-        ORDER BY e.created_at DESC
-      `
-    }
-
-    const results = await env.DB.prepare(query).bind(value).all()
-    return c.json({ success: true, enquiries: results.results })
-  } catch (error) {
-    console.error('Lookup error:', error)
-    return c.json({ success: false, message: 'Lookup failed' }, 500)
-  }
+app.post('/api/logout', requireAuth, async (c) => {
+  const sessionId = c.req.header('x-session-id')
+  await c.env.DB.prepare('DELETE FROM sessions WHERE id = ?').bind(sessionId).run()
+  return c.json({ success: true })
 })
 
-// Get accessories with search/filter
-app.get('/api/accessories', async (c) => {
-  try {
-    const search = c.req.query('search') || ''
-    const category = c.req.query('category') || ''
-    const { env } = c
-
-    let query = `
-      SELECT * FROM accessories 
-      WHERE is_active = 1
-    `
-    const params: any[] = []
-
-    if (search) {
-      query += ` AND (part_name LIKE ? OR part_number LIKE ? OR compatible_devices LIKE ?)`
-      params.push(`%${search}%`, `%${search}%`, `%${search}%`)
-    }
-
-    if (category) {
-      query += ` AND category = ?`
-      params.push(category)
-    }
-
-    query += ` ORDER BY part_name`
-
-    const results = await env.DB.prepare(query).bind(...params).all()
-    return c.json({ success: true, accessories: results.results })
-  } catch (error) {
-    console.error('Accessories fetch error:', error)
-    return c.json({ success: false, message: 'Failed to fetch accessories' }, 500)
+// Customer enquiry submission (public)
+app.post('/api/enquiry', async (c) => {
+  const data: EnquiryFormData = await c.req.json()
+  
+  // Find or create customer
+  let customer = await c.env.DB.prepare('SELECT * FROM customers WHERE phone_number = ?').bind(data.phone_number).first()
+  
+  if (!customer) {
+    const customerResult = await c.env.DB.prepare(`
+      INSERT INTO customers (phone_number, name, email) 
+      VALUES (?, ?, ?) RETURNING id
+    `).bind(data.phone_number, data.customer_name, data.email || null).run()
+    
+    customer = { id: customerResult.meta.last_row_id }
   }
+
+  // Create enquiry
+  const ticketNumber = generateTicketNumber()
+  const enquiryResult = await c.env.DB.prepare(`
+    INSERT INTO enquiries (
+      ticket_number, customer_id, imei, device_model, problem_description, 
+      warranty_status, insurance_status, service_type, source
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'web') RETURNING id
+  `).bind(
+    ticketNumber,
+    customer.id,
+    data.imei || null,
+    data.device_model,
+    data.problem_description,
+    data.warranty_status || 'unknown',
+    data.insurance_status || 'none',
+    data.service_type
+  ).run()
+
+  return c.json({ 
+    success: true, 
+    ticket_number: ticketNumber,
+    enquiry_id: enquiryResult.meta.last_row_id
+  })
 })
 
-// Get all enquiries for dashboard
-app.get('/api/enquiries', async (c) => {
-  try {
-    const status = c.req.query('status') || ''
-    const limit = parseInt(c.req.query('limit') || '50')
-    const { env } = c
+// IMEI/Phone lookup (staff only)
+app.get('/api/lookup', requireAuth, async (c) => {
+  const { imei, phone } = c.req.query()
+  
+  if (!imei && !phone) {
+    return c.json({ error: 'IMEI or phone number required' }, 400)
+  }
 
-    let query = `
-      SELECT e.*, c.name as customer_name, c.phone_number, c.email as customer_email,
-             u.full_name as assigned_user_name
-      FROM enquiries e
+  let enquiries = []
+  
+  if (imei) {
+    enquiries = await c.env.DB.prepare(`
+      SELECT e.*, c.name as customer_name, c.phone_number, u.full_name as assigned_user_name
+      FROM enquiries e 
       LEFT JOIN customers c ON e.customer_id = c.id
       LEFT JOIN users u ON e.assigned_to = u.id
-    `
-    const params: any[] = []
-
-    if (status) {
-      query += ` WHERE e.status = ?`
-      params.push(status)
-    }
-
-    query += ` ORDER BY e.created_at DESC LIMIT ?`
-    params.push(limit)
-
-    const results = await env.DB.prepare(query).bind(...params).all()
-    return c.json({ success: true, enquiries: results.results })
-  } catch (error) {
-    console.error('Enquiries fetch error:', error)
-    return c.json({ success: false, message: 'Failed to fetch enquiries' }, 500)
+      WHERE e.imei = ?
+      ORDER BY e.created_at DESC
+    `).bind(imei).all()
+  } else if (phone) {
+    enquiries = await c.env.DB.prepare(`
+      SELECT e.*, c.name as customer_name, c.phone_number, u.full_name as assigned_user_name
+      FROM enquiries e 
+      LEFT JOIN customers c ON e.customer_id = c.id
+      LEFT JOIN users u ON e.assigned_to = u.id
+      WHERE c.phone_number = ?
+      ORDER BY e.created_at DESC
+    `).bind(phone).all()
   }
+
+  return c.json({ results: enquiries.results || [] })
 })
 
-// Update enquiry status
-app.put('/api/enquiry/:id/status', async (c) => {
-  try {
-    const id = c.req.param('id')
-    const { status, notes } = await c.req.json()
-    const { env } = c
-
-    // Get current enquiry
-    const enquiry = await env.DB.prepare(`
-      SELECT status FROM enquiries WHERE id = ?
-    `).bind(id).first()
-
-    if (!enquiry) {
-      return c.json({ success: false, message: 'Enquiry not found' }, 404)
-    }
-
-    // Update enquiry status
-    await env.DB.prepare(`
-      UPDATE enquiries SET status = ?, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `).bind(status, id).run()
-
-    // Add status history
-    await env.DB.prepare(`
-      INSERT INTO status_history (enquiry_id, old_status, new_status, notes)
-      VALUES (?, ?, ?, ?)
-    `).bind(id, enquiry.status, status, notes || null).run()
-
-    return c.json({ success: true, message: 'Status updated successfully' })
-  } catch (error) {
-    console.error('Status update error:', error)
-    return c.json({ success: false, message: 'Failed to update status' }, 500)
+// Enquiries management (staff only)
+app.get('/api/enquiries', requireAuth, async (c) => {
+  const { status, limit = '50' } = c.req.query()
+  
+  let query = `
+    SELECT e.*, c.name as customer_name, c.phone_number, u.full_name as assigned_user_name
+    FROM enquiries e 
+    LEFT JOIN customers c ON e.customer_id = c.id
+    LEFT JOIN users u ON e.assigned_to = u.id
+  `
+  
+  const params = []
+  if (status && status !== 'all') {
+    query += ' WHERE e.status = ?'
+    params.push(status)
   }
+  
+  query += ' ORDER BY e.created_at DESC LIMIT ?'
+  params.push(parseInt(limit))
+
+  const result = await c.env.DB.prepare(query).bind(...params).all()
+  return c.json({ enquiries: result.results || [] })
+})
+
+app.put('/api/enquiries/:id', requireAuth, async (c) => {
+  const id = c.req.param('id')
+  const updates = await c.req.json()
+  const user = c.get('user')
+
+  // Get current enquiry for audit trail
+  const current = await c.env.DB.prepare('SELECT * FROM enquiries WHERE id = ?').bind(id).first()
+  if (!current) {
+    return c.json({ error: 'Enquiry not found' }, 404)
+  }
+
+  // Update enquiry
+  const setClause = Object.keys(updates).map(key => `${key} = ?`).join(', ')
+  const values = Object.values(updates)
+  
+  await c.env.DB.prepare(`
+    UPDATE enquiries SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?
+  `).bind(...values, id).run()
+
+  // Log status change if status was updated
+  if (updates.status && updates.status !== current.status) {
+    await c.env.DB.prepare(`
+      INSERT INTO status_history (enquiry_id, old_status, new_status, notes, changed_by)
+      VALUES (?, ?, ?, ?, ?)
+    `).bind(id, current.status, updates.status, updates.notes || null, user.id).run()
+  }
+
+  return c.json({ success: true })
+})
+
+// Accessories management
+app.get('/api/accessories', async (c) => {
+  const { search, category } = c.req.query()
+  
+  let query = 'SELECT * FROM accessories WHERE is_active = 1'
+  const params = []
+  
+  if (search) {
+    query += ' AND (part_name LIKE ? OR compatible_devices LIKE ?)'
+    params.push(`%${search}%`, `%${search}%`)
+  }
+  
+  if (category) {
+    query += ' AND category = ?'
+    params.push(category)
+  }
+  
+  query += ' ORDER BY part_name'
+  
+  const result = await c.env.DB.prepare(query).bind(...params).all()
+  return c.json({ accessories: result.results || [] })
+})
+
+app.post('/api/accessories', requireAuth, async (c) => {
+  const user = c.get('user')
+  if (user.role !== 'admin') {
+    return c.json({ error: 'Admin access required' }, 403)
+  }
+
+  const accessory = await c.req.json()
+  
+  const result = await c.env.DB.prepare(`
+    INSERT INTO accessories (
+      part_name, part_number, compatible_devices, category, 
+      wholesale_price, retail_price, stock_quantity, low_stock_threshold, supplier
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id
+  `).bind(
+    accessory.part_name,
+    accessory.part_number || null,
+    accessory.compatible_devices || null,
+    accessory.category || null,
+    accessory.wholesale_price || null,
+    accessory.retail_price,
+    accessory.stock_quantity || 0,
+    accessory.low_stock_threshold || 5,
+    accessory.supplier || null
+  ).run()
+
+  return c.json({ success: true, id: result.meta.last_row_id })
+})
+
+// Communications
+app.post('/api/communications', requireAuth, async (c) => {
+  const { enquiry_id, communication_type, direction, content } = await c.req.json()
+  const user = c.get('user')
+
+  await c.env.DB.prepare(`
+    INSERT INTO communications (enquiry_id, communication_type, direction, content, created_by)
+    VALUES (?, ?, ?, ?, ?)
+  `).bind(enquiry_id, communication_type, direction || 'internal', content, user.id).run()
+
+  return c.json({ success: true })
+})
+
+app.get('/api/communications/:enquiry_id', requireAuth, async (c) => {
+  const enquiryId = c.req.param('enquiry_id')
+  
+  const result = await c.env.DB.prepare(`
+    SELECT c.*, u.full_name as created_by_name
+    FROM communications c
+    LEFT JOIN users u ON c.created_by = u.id
+    WHERE c.enquiry_id = ?
+    ORDER BY c.created_at DESC
+  `).bind(enquiryId).all()
+
+  return c.json({ communications: result.results || [] })
+})
+
+// Dashboard stats (staff only)
+app.get('/api/dashboard', requireAuth, async (c) => {
+  const openCount = await c.env.DB.prepare('SELECT COUNT(*) as count FROM enquiries WHERE status = "open"').first()
+  const inProgressCount = await c.env.DB.prepare('SELECT COUNT(*) as count FROM enquiries WHERE status = "in_progress"').first()
+  const completedToday = await c.env.DB.prepare('SELECT COUNT(*) as count FROM enquiries WHERE status = "completed" AND DATE(completed_at) = DATE("now")').first()
+  const lowStock = await c.env.DB.prepare('SELECT COUNT(*) as count FROM accessories WHERE stock_quantity <= low_stock_threshold AND is_active = 1').first()
+
+  return c.json({
+    open_enquiries: openCount.count,
+    in_progress_enquiries: inProgressCount.count,
+    completed_today: completedToday.count,
+    low_stock_items: lowStock.count
+  })
 })
 
 // Main landing page
@@ -274,147 +321,243 @@ app.get('/', (c) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Bijnor Services - Authorized Samsung Service Center</title>
         <script src="https://cdn.tailwindcss.com"></script>
-        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
-        <style>
-          .samsung-blue { color: #1f2937; }
-          .samsung-bg-blue { background-color: #1565c0; }
-          .samsung-accent { color: #2563eb; }
-          .gradient-bg { 
-            background: linear-gradient(135deg, #1565c0 0%, #2563eb 100%);
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+        <script>
+          tailwind.config = {
+            theme: {
+              extend: {
+                colors: {
+                  'samsung-blue': '#1F2937',
+                  'samsung-light': '#374151',
+                  'accent-blue': '#3B82F6',
+                  'bg-gray': '#F9FAFB'
+                }
+              }
+            }
           }
-          .card-shadow {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        </script>
+        <style>
+          .gradient-bg {
+            background: linear-gradient(135deg, #1F2937 0%, #374151 100%);
+          }
+          .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
           }
         </style>
     </head>
-    <body class="bg-gray-50">
+    <body class="bg-bg-gray text-gray-800">
         <!-- Header -->
         <header class="gradient-bg text-white shadow-lg">
-            <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="container mx-auto px-4 py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
-                        <i class="fas fa-cog text-3xl"></i>
+                        <i class="fas fa-cog text-2xl"></i>
                         <div>
-                            <h1 class="text-2xl font-bold">BIJNOR SERVICES</h1>
-                            <p class="text-blue-100">Authorized Samsung Service Center</p>
+                            <h1 class="text-xl font-semibold">BIJNOR SERVICES</h1>
+                            <p class="text-sm text-gray-300">Authorized Samsung Service Center</p>
                         </div>
                     </div>
-                    <div class="hidden md:flex space-x-4">
-                        <button onclick="showEnquiryForm()" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
-                            <i class="fas fa-plus mr-2"></i>New Enquiry
-                        </button>
-                        <button onclick="showStaffLogin()" class="border border-white text-white px-4 py-2 rounded-lg hover:bg-white hover:text-blue-600 transition">
-                            <i class="fas fa-sign-in-alt mr-2"></i>Staff Login
-                        </button>
-                    </div>
+                    <button onclick="showLogin()" class="bg-white text-samsung-blue px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-user mr-2"></i>Staff Login
+                    </button>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 py-8">
+        <div id="app">
             <!-- Hero Section -->
-            <section class="text-center mb-12">
-                <h2 class="text-4xl font-bold text-gray-800 mb-4">Professional Samsung Device Repair & Support</h2>
-                <p class="text-xl text-gray-600 mb-8">Expert repair services for Samsung smartphones, tablets, and accessories with authorized parts and warranty</p>
-                
-                <!-- Service Info Cards -->
-                <div class="grid md:grid-cols-3 gap-6 mb-8">
-                    <div class="card-shadow bg-white p-6 rounded-lg">
-                        <i class="fas fa-mobile-alt text-3xl samsung-accent mb-4"></i>
-                        <h3 class="text-xl font-bold mb-2">Samsung Repairs</h3>
-                        <p class="text-gray-600">In-house repair services for all Samsung devices with genuine parts</p>
-                    </div>
-                    <div class="card-shadow bg-white p-6 rounded-lg">
-                        <i class="fas fa-shield-alt text-3xl samsung-accent mb-4"></i>
-                        <h3 class="text-xl font-bold mb-2">Insurance Claims</h3>
-                        <p class="text-gray-600">Bajaj Allianz claim processing with pickup and drop services</p>
-                    </div>
-                    <div class="card-shadow bg-white p-6 rounded-lg">
-                        <i class="fas fa-truck text-3xl samsung-accent mb-4"></i>
-                        <h3 class="text-xl font-bold mb-2">Pick & Drop</h3>
-                        <p class="text-gray-600">Convenient pickup and delivery service for your devices</p>
+            <section class="py-16 px-4">
+                <div class="container mx-auto text-center">
+                    <h2 class="text-3xl font-bold text-samsung-blue mb-4">Professional Samsung Device Service</h2>
+                    <p class="text-gray-600 text-lg mb-8">Expert repairs, genuine parts, and Bajaj Allianz insurance claim support</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                        <!-- Services -->
+                        <div class="glass-effect rounded-xl p-8 shadow-lg">
+                            <i class="fas fa-mobile-alt text-4xl text-accent-blue mb-4"></i>
+                            <h3 class="text-xl font-semibold mb-4">Our Services</h3>
+                            <ul class="text-left text-gray-600 space-y-2">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Samsung Device Repairs</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Bajaj Allianz Claims</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Pickup & Drop Service</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Genuine Parts & Accessories</li>
+                            </ul>
+                        </div>
+
+                        <!-- Contact Info -->
+                        <div class="glass-effect rounded-xl p-8 shadow-lg">
+                            <i class="fas fa-map-marker-alt text-4xl text-accent-blue mb-4"></i>
+                            <h3 class="text-xl font-semibold mb-4">Visit Us</h3>
+                            <div class="text-left text-gray-600 space-y-3">
+                                <p><strong>Address:</strong><br>1st Floor, Sky Tower, Sheel Kunj<br>Civil Line II, Bijnor - 246701</p>
+                                <p><strong>Hours:</strong> Mon-Sat 10AM-8PM</p>
+                                <p><strong>Phone:</strong> +91 80069 99809</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Contact Information -->
-            <section class="mb-12">
-                <h3 class="text-2xl font-bold text-center mb-8">Contact Us</h3>
-                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="card-shadow bg-white p-6 rounded-lg text-center">
-                        <i class="fas fa-phone text-2xl samsung-accent mb-3"></i>
-                        <h4 class="font-bold mb-2">Phone</h4>
-                        <a href="tel:+918006999809" class="samsung-accent hover:underline">+91 80069 99809</a>
-                    </div>
-                    <div class="card-shadow bg-white p-6 rounded-lg text-center">
-                        <i class="fab fa-whatsapp text-2xl text-green-500 mb-3"></i>
-                        <h4 class="font-bold mb-2">WhatsApp</h4>
-                        <a href="https://wa.me/918006999806" target="_blank" class="text-green-600 hover:underline">Chat Now</a>
-                    </div>
-                    <div class="card-shadow bg-white p-6 rounded-lg text-center">
-                        <i class="fab fa-facebook text-2xl text-blue-600 mb-3"></i>
-                        <h4 class="font-bold mb-2">Facebook</h4>
-                        <a href="https://www.facebook.com/bijnorservices" target="_blank" class="text-blue-600 hover:underline">Follow Us</a>
-                    </div>
-                    <div class="card-shadow bg-white p-6 rounded-lg text-center">
-                        <i class="fas fa-globe text-2xl samsung-accent mb-3"></i>
-                        <h4 class="font-bold mb-2">Website</h4>
-                        <a href="http://www.bijnorservices.in/" target="_blank" class="samsung-accent hover:underline">Visit Site</a>
+            <!-- Quick Actions -->
+            <section class="py-12 px-4 bg-white">
+                <div class="container mx-auto">
+                    <h3 class="text-2xl font-bold text-center text-samsung-blue mb-8">Quick Actions</h3>
+                    <div class="grid md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+                        <button onclick="showEnquiryForm()" class="bg-accent-blue text-white p-6 rounded-xl hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-plus-circle text-3xl mb-3"></i>
+                            <p class="font-semibold">Submit Enquiry</p>
+                        </button>
+                        <button onclick="showAccessories()" class="bg-gray-700 text-white p-6 rounded-xl hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-shopping-bag text-3xl mb-3"></i>
+                            <p class="font-semibold">View Accessories</p>
+                        </button>
+                        <a href="https://wa.me/918006999806" target="_blank" class="bg-green-600 text-white p-6 rounded-xl hover:bg-green-700 transition-colors text-center">
+                            <i class="fab fa-whatsapp text-3xl mb-3"></i>
+                            <p class="font-semibold">WhatsApp Chat</p>
+                        </a>
+                        <a href="https://www.google.com/maps/place/29.3812701,78.130724" target="_blank" class="bg-red-600 text-white p-6 rounded-xl hover:bg-red-700 transition-colors text-center">
+                            <i class="fas fa-map text-3xl mb-3"></i>
+                            <p class="font-semibold">Get Directions</p>
+                        </a>
                     </div>
                 </div>
             </section>
 
-            <!-- Business Hours & Location -->
-            <section class="grid md:grid-cols-2 gap-8 mb-12">
-                <div class="card-shadow bg-white p-6 rounded-lg">
-                    <h4 class="text-xl font-bold mb-4"><i class="fas fa-clock mr-2 samsung-accent"></i>Business Hours</h4>
-                    <div class="space-y-2">
-                        <div class="flex justify-between"><span>Monday - Saturday:</span><span class="font-medium">10:00 AM - 08:00 PM</span></div>
-                        <div class="flex justify-between"><span>Sunday:</span><span class="font-medium text-red-600">Closed</span></div>
+            <!-- Contact Links -->
+            <section class="py-12 px-4">
+                <div class="container mx-auto text-center">
+                    <h3 class="text-2xl font-bold text-samsung-blue mb-8">Connect With Us</h3>
+                    <div class="flex justify-center space-x-6">
+                        <a href="https://www.facebook.com/bijnorservices" target="_blank" class="bg-blue-600 text-white p-4 rounded-full hover:bg-blue-700 transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="http://www.bijnorservices.in/" target="_blank" class="bg-gray-700 text-white p-4 rounded-full hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-globe text-xl"></i>
+                        </a>
+                        <a href="https://g.page/r/CTiSXfQxuNOZEBM/review" target="_blank" class="bg-yellow-600 text-white p-4 rounded-full hover:bg-yellow-700 transition-colors">
+                            <i class="fab fa-google text-xl"></i>
+                        </a>
                     </div>
                 </div>
-                <div class="card-shadow bg-white p-6 rounded-lg">
-                    <h4 class="text-xl font-bold mb-4"><i class="fas fa-map-marker-alt mr-2 samsung-accent"></i>Location</h4>
-                    <p class="text-gray-600 mb-3">1st Floor, Sky Tower, Sheel Kunj<br>Civil Line II, Opposite PWD Guest House<br>Bijnor - 246701, Uttar Pradesh</p>
-                    <a href="https://www.google.com/maps/place/Samsung+Service+Center/@29.377293,78.1361535,18z/data=!4m8!1m2!10m1!1e1!3m4!1s0x390bef29bd508f0b:0x99d3b831f45d9238!8m2!3d29.377293!4d78.1372478?hl=en-GB" 
-                       target="_blank" 
-                       class="samsung-accent hover:underline">
-                        <i class="fas fa-directions mr-1"></i>Get Directions
-                    </a>
-                </div>
             </section>
+        </div>
 
-            <!-- Quick Access Buttons -->
-            <section class="text-center">
-                <div class="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-                    <button onclick="showEnquiryForm()" class="samsung-bg-blue text-white p-4 rounded-lg hover:bg-blue-700 transition">
-                        <i class="fas fa-plus-circle text-xl mb-2"></i><br>
-                        Submit New Enquiry
+        <!-- Login Modal -->
+        <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-xl p-8 w-full max-w-md mx-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-samsung-blue">Staff Login</h3>
+                    <button onclick="hideLogin()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
                     </button>
-                    <button onclick="showAccessories()" class="bg-gray-600 text-white p-4 rounded-lg hover:bg-gray-700 transition">
-                        <i class="fas fa-shopping-cart text-xl mb-2"></i><br>
-                        Check Accessories
-                    </button>
-                    <a href="https://g.page/r/CTiSXfQxuNOZEBM/review" target="_blank" 
-                       class="bg-yellow-500 text-white p-4 rounded-lg hover:bg-yellow-600 transition block">
-                        <i class="fas fa-star text-xl mb-2"></i><br>
-                        Write Review
-                    </a>
                 </div>
-            </section>
-        </main>
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                        <input type="text" id="username" name="username" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-blue focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="password" name="password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-blue focus:border-transparent">
+                    </div>
+                    <button type="submit" class="w-full bg-accent-blue text-white py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                    </button>
+                </form>
+                <p class="text-xs text-gray-500 mt-4">Demo: admin/admin123 or staff1/admin123</p>
+            </div>
+        </div>
 
-        <!-- Modals -->
-        <div id="modalOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeModal()">
-            <div class="flex items-center justify-center min-h-screen p-4">
-                <div id="modalContent" class="bg-white rounded-lg max-w-md w-full max-h-full overflow-y-auto" onclick="event.stopPropagation()">
-                    <!-- Modal content will be inserted here -->
+        <!-- Enquiry Form Modal -->
+        <div id="enquiryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-screen overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-samsung-blue">Submit Service Enquiry</h3>
+                    <button onclick="hideEnquiryForm()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form id="enquiryForm" class="space-y-4">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Your Name *</label>
+                            <input type="text" name="customer_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-blue">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                            <input type="tel" name="phone_number" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-blue">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email (Optional)</label>
+                        <input type="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-blue">
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Device Model *</label>
+                            <input type="text" name="device_model" required placeholder="e.g., Galaxy S24" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-blue">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">IMEI (Optional)</label>
+                            <input type="text" name="imei" placeholder="15-digit IMEI number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-blue">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Problem Description *</label>
+                        <textarea name="problem_description" required rows="3" placeholder="Describe the issue with your device" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-blue"></textarea>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Service Type *</label>
+                            <select name="service_type" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-blue">
+                                <option value="repair">Repair</option>
+                                <option value="claim">Insurance Claim</option>
+                                <option value="enquiry">General Enquiry</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Warranty Status</label>
+                            <select name="warranty_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-blue">
+                                <option value="unknown">Unknown</option>
+                                <option value="in_warranty">In Warranty</option>
+                                <option value="out_of_warranty">Out of Warranty</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Insurance</label>
+                            <select name="insurance_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-blue">
+                                <option value="none">No Insurance</option>
+                                <option value="bajaj_allianz">Bajaj Allianz</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-accent-blue text-white py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>Submit Enquiry
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Accessories Modal -->
+        <div id="accessoriesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-xl p-6 w-full max-w-4xl max-h-screen overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-samsung-blue">Accessories & Parts</h3>
+                    <button onclick="hideAccessories()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="mb-4">
+                    <input type="text" id="accessorySearch" placeholder="Search accessories..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-blue">
+                </div>
+                <div id="accessoriesList" class="space-y-4">
+                    <!-- Accessories will be loaded here -->
                 </div>
             </div>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
         <script src="/static/app.js"></script>
     </body>
     </html>
@@ -431,16 +574,31 @@ app.get('/portal', (c) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Staff Portal - Bijnor Services</title>
         <script src="https://cdn.tailwindcss.com"></script>
-        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+        <script>
+          tailwind.config = {
+            theme: {
+              extend: {
+                colors: {
+                  'samsung-blue': '#1F2937',
+                  'samsung-light': '#374151',
+                  'accent-blue': '#3B82F6',
+                  'bg-gray': '#F9FAFB'
+                }
+              }
+            }
+          }
+        </script>
         <style>
-          .samsung-blue { color: #1f2937; }
-          .samsung-bg-blue { background-color: #1565c0; }
-          .samsung-accent { color: #2563eb; }
+          .gradient-bg {
+            background: linear-gradient(135deg, #1F2937 0%, #374151 100%);
+          }
         </style>
     </head>
-    <body class="bg-gray-100">
-        <div id="app"></div>
-        <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    <body class="bg-bg-gray">
+        <div id="portalApp">
+            <!-- Portal content will be loaded here -->
+        </div>
         <script src="/static/portal.js"></script>
     </body>
     </html>
