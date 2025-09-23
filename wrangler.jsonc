@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "bijnor-services",
+  "name": "webapp",
   "compatibility_date": "2025-09-23",
   "pages_build_output_dir": "./dist",
   "compatibility_flags": [
@@ -9,7 +9,7 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "bijnor-services-db",
+      "database_name": "webapp-production",
       "database_id": "will-be-filled-after-creation"
     }
   ]

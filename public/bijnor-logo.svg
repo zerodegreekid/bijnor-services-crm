@@ -1,0 +1,30 @@
+<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main gear icon -->
+  <g transform="translate(100,35)">
+    <!-- Lines extending from gear -->
+    <line x1="-40" y1="0" x2="-20" y2="0" stroke="#2C3E50" stroke-width="2"/>
+    <line x1="20" y1="0" x2="40" y2="0" stroke="#2C3E50" stroke-width="2"/>
+    
+    <!-- Gear shape -->
+    <g transform="scale(0.8)">
+      <!-- Gear teeth -->
+      <polygon points="0,-15 -3,-18 -3,-12 -6,-12 -6,-9 -3,-9 -3,-3 0,0 3,-3 3,-9 6,-9 6,-12 3,-12 3,-18" fill="#2C3E50"/>
+      <polygon points="15,0 18,-3 12,-3 12,-6 9,-6 9,-3 3,-3 0,0 3,3 9,3 9,6 12,6 12,3 18,3" fill="#2C3E50"/>
+      <polygon points="0,15 3,18 3,12 6,12 6,9 3,9 3,3 0,0 -3,3 -3,9 -6,9 -6,12 -3,12 -3,18" fill="#2C3E50"/>
+      <polygon points="-15,0 -18,3 -12,3 -12,6 -9,6 -9,3 -3,3 0,0 -3,-3 -9,-3 -9,-6 -12,-6 -12,-3 -18,-3" fill="#2C3E50"/>
+      
+      <!-- Center circle -->
+      <circle cx="0" cy="0" r="6" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- BIJNOR text -->
+  <text x="100" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#2C3E50">
+    BIJNO<tspan fill="#2980B9">R</tspan>
+  </text>
+  
+  <!-- SERVICES text -->
+  <text x="100" y="90" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#2C3E50" letter-spacing="2px">
+    SERVICES
+  </text>
+</svg>

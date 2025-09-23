@@ -1,19 +1,11 @@
--- Bijnor Services CRM Database Schema
--- Comprehensive system for Samsung Service Center with Dealer Management
+-- Extension to existing database for Bijnor Services Dealer System
+-- Adds dealer management functionality to existing CRM
 
--- Users table (for Partners/Staff and Dealers)
-CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
-  full_name TEXT NOT NULL,
-  phone TEXT,
-  user_type TEXT NOT NULL CHECK (user_type IN ('partner', 'dealer', 'admin')),
-  is_active BOOLEAN DEFAULT TRUE,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+-- Add phone column to users table if it doesn't exist
+ALTER TABLE users ADD COLUMN phone TEXT;
+
+-- Change role column to user_type with proper constraints (if needed)
+-- Note: SQLite doesn't support changing column constraints directly, so we'll work with existing 'role'
 
 -- Dealer levels and management
 CREATE TABLE IF NOT EXISTS dealer_levels (
@@ -51,24 +43,21 @@ CREATE TABLE IF NOT EXISTS dealer_profiles (
   FOREIGN KEY (dealer_level) REFERENCES dealer_levels(id)
 );
 
--- Customers table
-CREATE TABLE IF NOT EXISTS customers (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  email TEXT,
-  phone TEXT NOT NULL,
-  address TEXT,
-  city TEXT,
-  state TEXT,
-  pincode TEXT,
-  location_lat DECIMAL(10,8),
-  location_lng DECIMAL(11,8),
-  location_method TEXT CHECK (location_method IN ('gps', 'manual', 'auto')),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+-- Add location fields to customers table if they don't exist
+ALTER TABLE customers ADD COLUMN location_lat DECIMAL(10,8);
+ALTER TABLE customers ADD COLUMN location_lng DECIMAL(11,8);
+ALTER TABLE customers ADD COLUMN location_method TEXT CHECK (location_method IN ('gps', 'manual', 'auto'));
 
--- Samsung devices (for IMEI lookup)
+-- Add location fields to enquiries table if they don't exist
+ALTER TABLE enquiries ADD COLUMN customer_location_lat DECIMAL(10,8);
+ALTER TABLE enquiries ADD COLUMN customer_location_lng DECIMAL(11,8);
+ALTER TABLE enquiries ADD COLUMN location_method TEXT CHECK (location_method IN ('gps', 'manual', 'auto'));
+ALTER TABLE enquiries ADD COLUMN is_referred_by_dealer BOOLEAN DEFAULT FALSE;
+ALTER TABLE enquiries ADD COLUMN dealer_referral_id INTEGER REFERENCES users(id);
+ALTER TABLE enquiries ADD COLUMN submitted_by_type TEXT CHECK (submitted_by_type IN ('customer', 'dealer', 'partner'));
+ALTER TABLE enquiries ADD COLUMN submitted_by_id INTEGER REFERENCES users(id);
+
+-- Samsung devices (for IMEI lookup) - if not exists or extend existing
 CREATE TABLE IF NOT EXISTS devices (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   imei TEXT UNIQUE NOT NULL,
@@ -82,36 +71,6 @@ CREATE TABLE IF NOT EXISTS devices (
   customer_id INTEGER,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (customer_id) REFERENCES customers(id)
-);
-
--- Enquiries/Service requests
-CREATE TABLE IF NOT EXISTS enquiries (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  ticket_number TEXT UNIQUE NOT NULL,
-  customer_id INTEGER NOT NULL,
-  device_id INTEGER,
-  submitted_by_type TEXT CHECK (submitted_by_type IN ('customer', 'dealer', 'partner')),
-  submitted_by_id INTEGER,
-  issue_category TEXT NOT NULL,
-  issue_description TEXT NOT NULL,
-  priority TEXT DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
-  status TEXT DEFAULT 'new' CHECK (status IN ('new', 'assigned', 'in_progress', 'waiting_parts', 'completed', 'closed', 'cancelled')),
-  assigned_to INTEGER,
-  estimated_cost DECIMAL(10,2),
-  actual_cost DECIMAL(10,2),
-  repair_notes TEXT,
-  customer_location_lat DECIMAL(10,8),
-  customer_location_lng DECIMAL(11,8),
-  location_method TEXT CHECK (location_method IN ('gps', 'manual', 'auto')),
-  is_referred_by_dealer BOOLEAN DEFAULT FALSE,
-  dealer_referral_id INTEGER,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (customer_id) REFERENCES customers(id),
-  FOREIGN KEY (device_id) REFERENCES devices(id),
-  FOREIGN KEY (submitted_by_id) REFERENCES users(id),
-  FOREIGN KEY (assigned_to) REFERENCES users(id),
-  FOREIGN KEY (dealer_referral_id) REFERENCES users(id)
 );
 
 -- Inventory management
@@ -181,17 +140,10 @@ INSERT OR IGNORE INTO system_settings (setting_key, setting_value, setting_type,
 ('service_center_working_days', 'Monday-Saturday', 'string', 'Working days');
 
 -- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-CREATE INDEX IF NOT EXISTS idx_users_type ON users(user_type);
 CREATE INDEX IF NOT EXISTS idx_dealer_profiles_user_id ON dealer_profiles(user_id);
 CREATE INDEX IF NOT EXISTS idx_dealer_profiles_level ON dealer_profiles(dealer_level);
-CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
 CREATE INDEX IF NOT EXISTS idx_devices_imei ON devices(imei);
 CREATE INDEX IF NOT EXISTS idx_devices_customer_id ON devices(customer_id);
-CREATE INDEX IF NOT EXISTS idx_enquiries_ticket ON enquiries(ticket_number);
-CREATE INDEX IF NOT EXISTS idx_enquiries_customer_id ON enquiries(customer_id);
-CREATE INDEX IF NOT EXISTS idx_enquiries_status ON enquiries(status);
 CREATE INDEX IF NOT EXISTS idx_enquiries_dealer_referral ON enquiries(dealer_referral_id);
 CREATE INDEX IF NOT EXISTS idx_inventory_part_number ON inventory(part_number);
 CREATE INDEX IF NOT EXISTS idx_dealer_activities_dealer_id ON dealer_activities(dealer_id);

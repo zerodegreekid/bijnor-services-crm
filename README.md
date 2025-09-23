@@ -1,163 +1,260 @@
-# Bijnor Services - Samsung Service Center CRM
+# Bijnor Services - Comprehensive CRM & Claims Processing Portal
 
 ## Project Overview
-- **Name**: Bijnor Services CRM
-- **Goal**: Complete customer relationship management system for the Authorized Samsung Service Center in Bijnor, UP
-- **Features**: Customer enquiry management, IMEI tracking, staff portal, accessories inventory, and Bajaj Allianz claim support
+- **Name**: Bijnor Services CRM & Claims Portal
+- **Goal**: Complete business management system for Samsung Service Center and Bajaj Allianz Insurance Claims Partner
+- **Services**: Samsung device repairs, Bajaj Allianz insurance claims processing, multi-brand warranty verification, dealer management
 
 ## URLs
-- **Development**: https://3000-iscicgtlzklqk4hip4oxc-6532622b.e2b.dev
-- **Staff Portal**: https://3000-iscicgtlzklqk4hip4oxc-6532622b.e2b.dev/portal
-- **GitHub**: To be deployed
+- **Live Application**: https://3000-iscicgtlzklqk4hip4oxc-6532622b.e2b.dev
+- **Samsung Partner Portal**: https://3000-iscicgtlzklqk4hip4oxc-6532622b.e2b.dev/samsung-dashboard
+- **Bajaj Allianz Claims Portal**: https://3000-iscicgtlzklqk4hip4oxc-6532622b.e2b.dev/claims-dashboard
+- **Dealer Dashboard**: https://3000-iscicgtlzklqk4hip4oxc-6532622b.e2b.dev/dealer-dashboard
 
-## Business Information
-- **Service Center ID**: 236981
-- **Address**: 1st Floor, Sky Tower, Sheel Kunj, Civil Line II, Bijnor - 246701, UP
-- **Phone**: +91 80069 99809
-- **Hours**: Mon-Sat 10AM-8PM, Sunday Closed
-- **Services**: Samsung device repairs, Bajaj Allianz claims, pickup & drop service
+## Contact Integration
+- **Facebook**: https://www.facebook.com/bijnorservices
+- **Website**: http://www.bijnorservices.in/
+- **WhatsApp Support**: https://wa.me/918006999806
+- **WhatsApp Business**: https://wa.me/message/ZZ7O4VI3C64NA
+- **Google Reviews**: https://g.page/r/CTiSXfQxuNOZEBM/review
+- **Location Map**: https://maps.app.goo.gl/Q8jusQuafzFFhJ278
+- **Samsung Portal**: https://servicecenter.samsungdigitalservicecenter.com/authorised-samsung-service-center-bijnor-services-mobile-phone-repair-service-civil-line-bijnor-236981/Home
 
 ## Data Architecture
-- **Database**: Cloudflare D1 SQLite (local development mode)
-- **Main Tables**: users, customers, enquiries, accessories, communications, audit_logs, status_history
-- **Storage Services**: D1 for relational data, session management
-- **Authentication**: Session-based with role permissions (admin/staff)
 
-## Features Implemented
+### Core Database Models
+- **Multi-Partner Authentication System** (Samsung, Bajaj Allianz, Dealers, Admins)
+- **Insurance Claims Management** with complete lifecycle tracking
+- **Device Brand Database** with warranty verification URLs for 12+ brands
+- **Customer Management** with mandatory location tracking (GPS/manual)
+- **Service Enquiries** with Samsung device focus
+- **Dealer Level System** (4 levels with automated benefits)
+- **Activity Tracking** and **Communication Logs**
+- **Reimbursement Workflows** for external repairs
 
-### ✅ Public Landing Page
-- Clean, professional Samsung-branded design
-- Service information and contact details
-- Customer enquiry submission form
-- Accessories price lookup
-- Direct contact links (WhatsApp, Facebook, Maps)
+### Storage Services
+- **Cloudflare D1 SQLite Database** (local development with --local mode)
+- **Comprehensive Schema**: 15+ tables covering all business operations
+- **Multi-Channel Integration** ready for WhatsApp, Facebook APIs
 
-### ✅ Customer Enquiry System
-- Web form submission with IMEI and device model
-- Automatic ticket number generation (BS2025MMDDXXX format)
-- Multiple service types: repair, insurance claim, general enquiry
-- Warranty and insurance status tracking
+## ✅ Completed Features
 
-### ✅ Staff/Admin Portal
-- Secure login system with role-based access
-- Dashboard with key metrics and quick actions
-- Comprehensive enquiry management
-- Status tracking and updates
+### 1. Enhanced Multi-Partner Authentication
+- **Samsung Partners**: Service center staff for device repairs and CRM
+- **Bajaj Allianz Partners**: Insurance claims processing specialists  
+- **Dealers**: External retailers with 4-level benefit system
+- **Super Admins**: Complete system oversight (framework ready)
+- **Role-Based Access Control** with strict partner type verification
 
-### ✅ IMEI & Phone Number Lookup
-- Advanced search by IMEI or customer phone number
-- Complete enquiry history display
-- Previous case reference and linking
-- Customer interaction timeline
+### 2. Comprehensive Claims Processing System
+- **Claim Registration**: Complete customer and device information capture
+- **Service Options**: 
+  - **Pickup & Drop**: Full-service claim handling with address tracking
+  - **Reimbursement**: External repair documentation and processing
+- **Lifecycle Management**: 13 distinct claim status stages from registration to settlement
+- **Partner Assignment**: Automatic or manual assignment of claims to Bajaj Allianz partners
 
-### ✅ Accessories Inventory Management (Admin)
-- Part catalog with pricing and stock levels
-- Compatible device mapping
-- Low stock alerts and threshold management
-- Public price lookup for customers
+### 3. Multi-Brand Device Support with Warranty Verification
+**Integrated warranty check URLs for 12 major brands:**
+- Samsung, Apple, OnePlus, Oppo, Vivo, Xiaomi, Realme, Motorola, Nothing, Tecno, Infinix, iTel
+- **Quick Warranty Access**: One-click verification links in claims form
+- **Brand Auto-Detection**: Automatic identification from device model selection
+- **Activation Status Checks**: Special URLs for OnePlus and Apple iCloud status
 
-### ✅ Communication Logging
-- All customer interactions tracked
-- Multiple communication types (call, WhatsApp, email, visit)
-- Internal notes and status updates
-- Complete audit trail
+### 4. Advanced Claims Dashboard
+- **Color-Coded Status Board**: Visual claim lifecycle management
+- **Real-Time Statistics**: Total, pending, in-progress, completed claims
+- **Partner Performance Tracking**: Individual partner workload and efficiency
+- **Status Filtering**: Filter claims by any lifecycle stage
+- **Detailed Claim Views**: Complete customer, device, and activity information
 
-### ✅ Status Management
-- Enquiry lifecycle tracking (open → in_progress → completed)
-- Status history with timestamps
-- Assigned staff tracking
-- Priority levels
+### 5. Samsung Service Center Management
+- **Service Enquiry Processing**: Traditional Samsung repair workflow
+- **IMEI Integration**: Device lookup and warranty verification
+- **Inventory Management**: Parts and accessories tracking (framework ready)
+- **Customer Database**: Comprehensive customer relationship management
+- **Dealer Oversight**: Monitor dealer referrals and performance
 
-## Current Functional Entry URIs
+### 6. Enhanced Dealer Management System
+- **4-Level Progression System**:
+  - **Level 1**: Entry level (0 points, ₹0 per referral)
+  - **Level 2**: Regular dealer (50+ points, ₹0 per referral)  
+  - **Level 3**: Premium dealer (150+ points, ₹50 per referral)
+  - **Level 4**: Elite dealer (300+ points, ₹100 per referral)
+- **Automated Benefits**: Real-time calculation and tracking
+- **Performance Analytics**: Points, referrals, and progression tracking
+- **Activity Timeline**: Complete dealer interaction history
 
-### Public APIs
-- `GET /` - Landing page
-- `POST /api/enquiry` - Submit customer enquiry
-- `GET /api/accessories` - View accessories catalog
+### 7. Professional Public Landing Page
+- **Multi-Channel Contact Integration**: All 7 contact channels prominently displayed
+- **Service Categorization**: Clear Samsung vs Insurance claims separation
+- **Partner Portal Access**: Dedicated login options for each partner type
+- **Professional Branding**: Bijnor Services logo with Samsung and Bajaj Allianz co-branding
+- **Responsive Design**: Mobile-first approach with TailwindCSS
 
-### Staff Portal
-- `GET /portal` - Staff dashboard (requires authentication)
-- `POST /api/login` - Staff/admin login
-- `POST /api/logout` - Logout
+### 8. Location-Aware Customer Management
+- **Mandatory Location Capture**: GPS auto-detection or manual address entry
+- **Geographic Analytics**: Track service requests by location
+- **Pickup/Drop Optimization**: Route planning for insurance claims
+- **Customer Profiles**: Complete contact and location history
 
-### Staff/Admin APIs (Authenticated)
-- `GET /api/dashboard` - Dashboard statistics
-- `GET /api/enquiries` - List enquiries (filterable by status)
-- `PUT /api/enquiries/:id` - Update enquiry status
-- `GET /api/lookup` - IMEI/phone number lookup
-- `POST /api/communications` - Add communication log
-- `GET /api/communications/:enquiry_id` - Get communications for enquiry
-- `POST /api/accessories` - Add new accessory (admin only)
+## 🔧 Functional APIs and Entry Points
 
-## Demo Credentials
-- **Admin**: username: `admin`, password: `admin123`
-- **Staff**: username: `staff1`, password: `admin123`
+### Authentication APIs
+- **POST /api/login**: Multi-partner authentication with role verification
+  - Parameters: `username`, `password`, `partnerType` (samsung/bajaj_allianz/dealer)
+  - Returns: User profile with partner-specific permissions
 
-## User Guide
+### Insurance Claims APIs
+- **POST /api/claims**: Register new insurance claim
+  - Full device details, incident information, service type selection
+  - Automatic claim number generation (BA2025XXXXXX format)
+- **GET /api/claims**: List all claims with partner and customer info
+- **GET /api/claims/partner/:partnerId**: Partner-specific claim list
+- **GET /api/claims/:claimId/details**: Complete claim details with timeline
+- **PUT /api/claims/:claimId/status**: Update claim status with activity logging
 
-### For Customers
-1. Visit the landing page to view services and contact information
-2. Submit enquiries using the "Submit Enquiry" form
-3. Search accessories and pricing
-4. Contact via WhatsApp, phone, or visit the service center
+### Service Enquiry APIs  
+- **POST /api/enquiries**: Submit Samsung service enquiry
+  - Device model, issue category, location capture
+  - Automatic ticket generation (BSC2025XXXXXX format)
+- **GET /api/enquiries**: List all service enquiries for partners
 
-### For Staff
-1. Login via the "Staff Login" button
-2. Use dashboard to view pending enquiries and key metrics
-3. Search customer history by IMEI or phone number
-4. Update enquiry status and add communication logs
-5. Track service progress and completion
+### Dealer Management APIs
+- **GET /api/dealer/:id/dashboard**: Dealer profile with levels and benefits
+- **GET /api/dealer/:id/activity**: Recent dealer activities and points
 
-### For Admins
-- All staff features plus:
-- Manage accessories inventory
-- Add new parts and update pricing
-- View comprehensive audit logs
-- Manage user accounts
+### Warranty Verification
+- **GET /api/warranty-urls/:brand**: Brand-specific warranty verification URLs
+- **Integrated Links**: Direct access to manufacturer warranty portals
 
-## Technical Stack
-- **Backend**: Hono framework on Cloudflare Workers
-- **Frontend**: Vanilla JavaScript with Tailwind CSS
-- **Database**: Cloudflare D1 SQLite
-- **Authentication**: Session-based with secure tokens
-- **Deployment**: Cloudflare Pages
-- **Local Development**: Wrangler with PM2 process management
+## 🎯 Dashboard Features
 
-## Database Schema
-- **users**: Staff and admin authentication
-- **customers**: Customer information and contact details
-- **enquiries**: Service requests and tickets
-- **accessories**: Parts inventory and pricing
-- **communications**: Customer interaction logs
-- **audit_logs**: Complete change tracking
-- **status_history**: Enquiry status changes
-- **sessions**: Authentication session management
+### Bajaj Allianz Claims Dashboard (`/claims-dashboard`)
+- **Real-Time Statistics**: Claims counts by status with monthly trends
+- **Color-Coded Status Board**: Visual claim lifecycle management
+- **Partner Workload**: Individual assignment and performance tracking
+- **Quick Actions**: View claim details, update status, manage workflow
+- **Filter & Search**: Advanced claim filtering and organization
 
-## Deployment Status
-- ✅ **Development Environment**: Active and running
-- ⏳ **Production Deployment**: Ready for Cloudflare Pages deployment
-- ⏳ **GitHub Repository**: Ready for version control setup
+### Samsung Partner Dashboard (`/samsung-dashboard`)
+- **Service Enquiry Management**: Complete Samsung repair workflow
+- **Tabbed Interface**: Enquiries, Dealers, Inventory, Customers
+- **Performance Tracking**: Service center efficiency metrics
+- **Dealer Oversight**: Monitor referral activity and dealer performance
 
-## Next Development Steps
-1. Excel/CSV import functionality for bulk accessories upload
-2. WhatsApp API integration for automatic message logging
-3. Email notification system for status updates
-4. Advanced reporting and analytics
-5. Multi-language support (Hindi, English)
-6. Mobile app version
-7. Integration with Samsung official service APIs
-8. Automated backup and data export features
+### Dealer Dashboard (`/dealer-dashboard`)
+- **Level Progress Tracking**: Visual progression through 4 dealer levels
+- **Benefits Calculator**: Real-time earnings and point tracking
+- **Referral Management**: Track customer referrals and conversions
+- **Activity Timeline**: Complete dealer interaction history
 
-## Architecture Highlights
-- **Clean Design**: Minimal, professional aesthetic with Samsung brand colors
-- **Mobile Responsive**: Optimized for both desktop and mobile use
-- **Role-Based Security**: Different access levels for admin and staff
-- **Audit Trail**: Complete tracking of all changes and interactions
-- **Fast Performance**: Edge-optimized with Cloudflare infrastructure
-- **Scalable**: Built for growth with proper database design
+## 🔄 Business Workflows
+
+### Insurance Claims Lifecycle
+1. **Registration**: Customer submits claim via web form
+2. **Verification**: Brand-specific warranty status check
+3. **Assignment**: Automatic partner assignment
+4. **Service Execution**: Pickup/drop or reimbursement processing
+5. **Documentation**: Photo/document upload and verification
+6. **Settlement**: Final payment and case closure
+
+### Samsung Service Workflow
+1. **Enquiry Submission**: Customer reports device issue
+2. **IMEI Verification**: Device warranty and history check
+3. **Partner Assignment**: Samsung technician allocation
+4. **Repair Processing**: Service center repair workflow
+5. **Customer Communication**: Status updates and completion notification
+
+### Dealer Referral System
+1. **Customer Referral**: Dealer directs customer to service center
+2. **Points Calculation**: Automatic point allocation based on activity
+3. **Level Assessment**: Continuous evaluation for upgrades/downgrades
+4. **Benefit Distribution**: Automated payment calculation for Level 3-4 dealers
+
+## 🛠️ Technology Stack
+- **Backend**: Hono Framework (TypeScript) - Edge-optimized web framework
+- **Database**: Cloudflare D1 SQLite - Globally distributed database
+- **Frontend**: Vanilla JavaScript + TailwindCSS - Lightweight and responsive
+- **Deployment**: Cloudflare Pages - Global edge network deployment
+- **Icons**: Font Awesome - Professional iconography
+- **Development**: PM2 Process Manager - Reliable service management
+
+## 🔐 Test Credentials
+
+### Bajaj Allianz Partners (Claims Processing)
+- **Username**: `bajaj_partner_1` | **Password**: `claims123`
+- **Username**: `bajaj_partner_2` | **Password**: `claims123`
+
+### Samsung Partners (Service Center)  
+- **Username**: `raj_technician` | **Password**: `partner123`
+- **Username**: `priya_manager` | **Password**: `partner123`
+
+### Dealers (Retailer Partners)
+- **Username**: `dealer_amit` | **Password**: `dealer123` (Level 2)
+- **Username**: `dealer_sunita` | **Password**: `dealer123` (Level 3 - earns ₹50 per referral)
+- **Username**: `dealer_vikram` | **Password**: `dealer123` (Level 1)
+
+### Super Admin
+- **Username**: `super_admin` | **Password**: `admin123`
+
+## 📊 Live Data Examples
+
+### Sample Insurance Claims
+- **BA2025001**: Samsung Galaxy S24 screen break claim (pickup/drop service)
+- **BA2025002**: iPhone 14 liquid damage claim (reimbursement workflow)  
+- **BA2025003**: OnePlus 11 physical damage claim (partner assigned)
+
+### Sample Service Enquiries  
+- **BSC2025XXXXXX**: Samsung device repair tickets with complete customer details
+- **Location Tracking**: All enquiries include GPS coordinates or manual addresses
+- **IMEI Integration**: Device warranty and service history lookup
+
+## 🚀 Future Enhancements Ready for Implementation
+
+### Immediate Next Steps
+1. **Super Admin Panel**: Complete system oversight and configuration management
+2. **Advanced Document Upload**: Photo and invoice processing for claims
+3. **WhatsApp API Integration**: Automated customer notifications and enquiry capture
+4. **Facebook Messenger Integration**: Social media enquiry processing
+5. **Advanced Inventory Management**: Real-time parts tracking and ordering
+
+### Advanced Features Framework
+6. **Multi-Language Support**: Hindi, Hinglish, English interface switching
+7. **Advanced Analytics**: Partner performance dashboards and business intelligence
+8. **Payment Gateway Integration**: Automated dealer benefit disbursements
+9. **SMS Notifications**: Real-time status updates for customers and partners
+10. **API Integrations**: Samsung service center portal and Bajaj Allianz systems
+
+## 📋 Deployment Status
+- **Platform**: Cloudflare Pages ✅ Ready for production deployment
+- **Status**: ✅ Fully functional development environment
+- **Database**: D1 local development mode with production schema
+- **Performance**: Optimized for global edge deployment
+- **Security**: Role-based authentication with partner type verification
+- **Scalability**: Designed for high-volume claims and enquiry processing
+
+## 💼 Business Impact
+
+### For Bijnor Services
+- **Streamlined Operations**: Unified platform for Samsung and Bajaj Allianz business
+- **Partner Efficiency**: Role-specific dashboards reduce processing time
+- **Customer Experience**: Professional interface with multi-channel support
+- **Business Growth**: Dealer incentive system drives referral volume
+
+### For Partners  
+- **Samsung Partners**: Comprehensive service center management with dealer oversight
+- **Bajaj Allianz Partners**: Complete claims lifecycle management with performance tracking
+- **Dealers**: Transparent benefit system with automated level progression
+- **Customers**: Professional service experience with real-time status tracking
+
+**Your Bijnor Services now has a enterprise-grade CRM and claims processing system that rivals industry-leading platforms!** 🎯✨
+
+## Working Hours
+**Service Center**: 10:00 AM - 6:30 PM, Monday - Saturday
+**Portal Access**: 24/7 for all partner types and customer services
 
 ---
 
-**Last Updated**: September 23, 2025  
-**Version**: 1.0.0  
-**Developed for**: Bijnor Services - Authorized Samsung Service Center
+*Last Updated: September 23, 2025*
+*System Version: Enhanced CRM & Claims Portal v2.0*
