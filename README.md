@@ -1,241 +1,163 @@
 # Bijnor Services - Samsung Service Center CRM
 
 ## Project Overview
-- **Name**: Bijnor Services CRM Web Application
-- **Goal**: Complete online portal and CRM system for Bijnor Services - Authorized Samsung Service Center in Bijnor, UP
-- **Features**: Customer enquiry management, staff portal, IMEI/phone lookup, accessories inventory, and Bajaj Allianz insurance claim processing
+- **Name**: Bijnor Services CRM
+- **Goal**: Complete customer relationship management system for the Authorized Samsung Service Center in Bijnor, UP
+- **Features**: Customer enquiry management, IMEI tracking, staff portal, accessories inventory, and Bajaj Allianz claim support
 
-## 🌐 Live URLs
-- **Production**: https://3000-iscicgtlzklqk4hip4oxc-6532622b.e2b.dev
+## URLs
+- **Development**: https://3000-iscicgtlzklqk4hip4oxc-6532622b.e2b.dev
 - **Staff Portal**: https://3000-iscicgtlzklqk4hip4oxc-6532622b.e2b.dev/portal
-- **API Base**: https://3000-iscicgtlzklqk4hip4oxc-6532622b.e2b.dev/api
+- **GitHub**: To be deployed
 
-## 🏢 Business Information
+## Business Information
 - **Service Center ID**: 236981
-- **Address**: 1st Floor, Sky Tower, Sheel Kunj, Civil Line II, Opposite PWD Guest House, Bijnor - 246701, UP
+- **Address**: 1st Floor, Sky Tower, Sheel Kunj, Civil Line II, Bijnor - 246701, UP
 - **Phone**: +91 80069 99809
-- **WhatsApp**: https://wa.me/918006999806
-- **Facebook**: https://www.facebook.com/bijnorservices
-- **Website**: http://www.bijnorservices.in/
-- **Business Hours**: Monday-Saturday 10:00 AM - 8:00 PM, Sunday Closed
+- **Hours**: Mon-Sat 10AM-8PM, Sunday Closed
+- **Services**: Samsung device repairs, Bajaj Allianz claims, pickup & drop service
 
-## 📊 Data Architecture
+## Data Architecture
+- **Database**: Cloudflare D1 SQLite (local development mode)
+- **Main Tables**: users, customers, enquiries, accessories, communications, audit_logs, status_history
+- **Storage Services**: D1 for relational data, session management
+- **Authentication**: Session-based with role permissions (admin/staff)
 
-### **Database Schema (D1 SQLite)**
-- **Users**: Staff/admin authentication and role management
-- **Customers**: Customer contact information and history
-- **Enquiries**: Service tickets with full lifecycle tracking
-- **Accessories**: Parts inventory with pricing and stock management
-- **Communications**: Customer interaction logs (calls, WhatsApp, visits)
-- **Status History**: Audit trail for enquiry status changes
-- **Audit Logs**: System-wide change tracking
-- **Sessions**: User session management
+## Features Implemented
 
-### **Storage Services**
-- **Cloudflare D1**: Primary database for all structured data
-- **Local SQLite**: Development environment with `--local` flag
-- **Static Assets**: Served via Cloudflare Pages from `public/static/`
+### ✅ Public Landing Page
+- Clean, professional Samsung-branded design
+- Service information and contact details
+- Customer enquiry submission form
+- Accessories price lookup
+- Direct contact links (WhatsApp, Facebook, Maps)
 
-### **Data Models**
-- **Enquiry Lifecycle**: Open → In Progress → Waiting Parts → Completed/Cancelled
-- **User Roles**: Admin (full access), Staff (limited access)
-- **Service Types**: Repair, Claim (Bajaj Allianz), General Enquiry
-- **Communication Types**: Call, WhatsApp, Email, SMS, Visit, Internal Note
-
-## 🎯 Core Features Implemented
-
-### **✅ Public Landing Page**
-- Samsung-branded responsive design with official colors
-- Service information (repairs, claims, pickup/drop)
-- Complete contact information with direct links
-- Business hours and location with Google Maps integration
-- Customer enquiry form with device model selection
-- Accessories price checking system
-- Multi-language support structure (English/Hindi/Hinglish ready)
-
-### **✅ Customer Enquiry System**
-- Comprehensive enquiry form with validation
-- IMEI number collection and validation
-- Device model selection from Samsung catalog
-- Service type categorization (repair/claim/enquiry)
-- Warranty and insurance status tracking
+### ✅ Customer Enquiry System
+- Web form submission with IMEI and device model
 - Automatic ticket number generation (BS2025MMDDXXX format)
-- Customer phone/email duplicate detection
+- Multiple service types: repair, insurance claim, general enquiry
+- Warranty and insurance status tracking
 
-### **✅ Staff Portal & Authentication**
-- Secure login system with session management
-- Role-based access (admin vs staff permissions)
-- Dashboard with enquiry overview and filters
-- Real-time enquiry status updates
-- Staff assignment and workload management
+### ✅ Staff/Admin Portal
+- Secure login system with role-based access
+- Dashboard with key metrics and quick actions
+- Comprehensive enquiry management
+- Status tracking and updates
 
-### **✅ IMEI & Phone Number Lookup Engine**
-- Instant search by 15-digit IMEI number
-- Customer history lookup by phone number
-- Complete enquiry history with timeline
-- Cross-reference detection for repeat customers
-- Related case identification and linking
+### ✅ IMEI & Phone Number Lookup
+- Advanced search by IMEI or customer phone number
+- Complete enquiry history display
+- Previous case reference and linking
+- Customer interaction timeline
 
-### **✅ Enquiry Management Dashboard**
-- Real-time enquiry listing with filters
-- Status tracking (Open, In Progress, Waiting Parts, Completed, Cancelled)
-- Priority management (Low, Normal, High, Urgent)
-- Assignment to staff members
-- Estimated completion date tracking
-- Customer communication history
-
-### **✅ Accessories & Parts Inventory**
-- Complete Samsung parts catalog with pricing
-- Stock quantity tracking with low-stock alerts
+### ✅ Accessories Inventory Management (Admin)
+- Part catalog with pricing and stock levels
 - Compatible device mapping
-- Wholesale and retail pricing
-- Search and filter functionality
-- Part number and compatibility tracking
-- Excel upload capability (admin only)
+- Low stock alerts and threshold management
+- Public price lookup for customers
 
-### **✅ Communication & Audit System**
-- Customer interaction logging (calls, WhatsApp, visits)
-- Status change history with timestamps
-- Staff action audit trail
-- Communication direction tracking (incoming/outgoing)
-- Notes and internal communication system
+### ✅ Communication Logging
+- All customer interactions tracked
+- Multiple communication types (call, WhatsApp, email, visit)
+- Internal notes and status updates
+- Complete audit trail
 
-## 🔧 Technical Stack
-- **Backend**: Hono framework on Cloudflare Workers
-- **Database**: Cloudflare D1 (SQLite) with local development support
-- **Frontend**: Vanilla JavaScript with TailwindCSS
-- **Icons**: FontAwesome 6.4.0
-- **HTTP Client**: Axios
-- **Deployment**: Cloudflare Pages with edge distribution
-- **Development**: PM2 process management with hot reload
+### ✅ Status Management
+- Enquiry lifecycle tracking (open → in_progress → completed)
+- Status history with timestamps
+- Assigned staff tracking
+- Priority levels
 
-## 📋 Functional Entry URIs
+## Current Functional Entry URIs
 
-### **Public APIs**
-- `POST /api/enquiry` - Submit customer service enquiry
-- `GET /api/accessories` - Fetch accessories catalog (with search/filter)
-- `GET /api/accessories?search={query}` - Search accessories by keyword
-- `GET /api/accessories?category={category}` - Filter by accessory category
+### Public APIs
+- `GET /` - Landing page
+- `POST /api/enquiry` - Submit customer enquiry
+- `GET /api/accessories` - View accessories catalog
 
-### **Staff Portal APIs**
-- `POST /api/login` - Staff/admin authentication
-- `GET /api/enquiries` - Get all enquiries (with optional status filter)
-- `GET /api/enquiries?status={status}` - Filter enquiries by status
-- `GET /api/enquiries?limit={number}` - Limit enquiry results
-- `PUT /api/enquiry/{id}/status` - Update enquiry status with notes
+### Staff Portal
+- `GET /portal` - Staff dashboard (requires authentication)
+- `POST /api/login` - Staff/admin login
+- `POST /api/logout` - Logout
 
-### **Lookup APIs**
-- `GET /api/lookup/imei/{imei}` - Search enquiries by IMEI number
-- `GET /api/lookup/phone/{phone}` - Search enquiries by phone number
+### Staff/Admin APIs (Authenticated)
+- `GET /api/dashboard` - Dashboard statistics
+- `GET /api/enquiries` - List enquiries (filterable by status)
+- `PUT /api/enquiries/:id` - Update enquiry status
+- `GET /api/lookup` - IMEI/phone number lookup
+- `POST /api/communications` - Add communication log
+- `GET /api/communications/:enquiry_id` - Get communications for enquiry
+- `POST /api/accessories` - Add new accessory (admin only)
 
-### **Web Pages**
-- `/` - Public landing page with enquiry form
-- `/portal` - Staff authentication and dashboard
-- `/static/*` - Static assets (CSS, JS, images)
-
-## 👥 User Guide
-
-### **For Customers**
-1. **Submit Enquiry**: Click "New Enquiry" → Fill form with device details → Get ticket number
-2. **Check Accessories**: Click "Check Accessories" → Search by device model or part name
-3. **Contact Support**: Use WhatsApp, phone, or visit service center
-4. **Track Status**: Contact staff with your ticket number for updates
-
-### **For Staff Members**
-1. **Login**: Use staff credentials at `/portal`
-2. **View Enquiries**: Dashboard shows all open and assigned enquiries
-3. **Search History**: Use IMEI/Phone lookup to find customer history
-4. **Update Status**: Change enquiry status and add progress notes
-5. **Manage Inventory**: View accessories stock and pricing
-
-### **For Administrators**
-1. **Full Access**: All staff features plus inventory management
-2. **User Management**: Add/remove staff accounts
-3. **Inventory Upload**: Bulk update accessories via Excel import
-4. **System Monitoring**: View audit logs and system usage
-
-## 🚀 Deployment Status
-- **Platform**: Cloudflare Pages with Workers
-- **Status**: ✅ Active and fully functional
-- **Environment**: Development (ready for production deployment)
-- **Database**: Local D1 with migration support
-- **Last Updated**: September 23, 2025
-
-## 🔐 Demo Credentials
+## Demo Credentials
 - **Admin**: username: `admin`, password: `admin123`
 - **Staff**: username: `staff1`, password: `admin123`
 
-## 📱 Mobile Compatibility
-- Fully responsive design optimized for mobile devices
-- Touch-friendly interface with large buttons
-- Optimized forms for mobile input
-- Fast loading on mobile networks
-- Progressive Web App (PWA) ready structure
+## User Guide
 
-## 🔄 Development Workflow
+### For Customers
+1. Visit the landing page to view services and contact information
+2. Submit enquiries using the "Submit Enquiry" form
+3. Search accessories and pricing
+4. Contact via WhatsApp, phone, or visit the service center
 
-### **Local Development**
-```bash
-# Install dependencies
-npm install
+### For Staff
+1. Login via the "Staff Login" button
+2. Use dashboard to view pending enquiries and key metrics
+3. Search customer history by IMEI or phone number
+4. Update enquiry status and add communication logs
+5. Track service progress and completion
 
-# Build application
-npm run build
+### For Admins
+- All staff features plus:
+- Manage accessories inventory
+- Add new parts and update pricing
+- View comprehensive audit logs
+- Manage user accounts
 
-# Apply database migrations
-npm run db:migrate:local
+## Technical Stack
+- **Backend**: Hono framework on Cloudflare Workers
+- **Frontend**: Vanilla JavaScript with Tailwind CSS
+- **Database**: Cloudflare D1 SQLite
+- **Authentication**: Session-based with secure tokens
+- **Deployment**: Cloudflare Pages
+- **Local Development**: Wrangler with PM2 process management
 
-# Seed test data
-npm run db:seed
+## Database Schema
+- **users**: Staff and admin authentication
+- **customers**: Customer information and contact details
+- **enquiries**: Service requests and tickets
+- **accessories**: Parts inventory and pricing
+- **communications**: Customer interaction logs
+- **audit_logs**: Complete change tracking
+- **status_history**: Enquiry status changes
+- **sessions**: Authentication session management
 
-# Start development server
-pm2 start ecosystem.config.cjs
+## Deployment Status
+- ✅ **Development Environment**: Active and running
+- ⏳ **Production Deployment**: Ready for Cloudflare Pages deployment
+- ⏳ **GitHub Repository**: Ready for version control setup
 
-# View logs
-pm2 logs bijnor-services --nostream
-```
+## Next Development Steps
+1. Excel/CSV import functionality for bulk accessories upload
+2. WhatsApp API integration for automatic message logging
+3. Email notification system for status updates
+4. Advanced reporting and analytics
+5. Multi-language support (Hindi, English)
+6. Mobile app version
+7. Integration with Samsung official service APIs
+8. Automated backup and data export features
 
-### **Database Management**
-```bash
-# Reset database (development only)
-npm run db:reset
-
-# Execute SQL commands
-npm run db:console:local
-
-# Apply new migrations
-npm run db:migrate:local
-```
-
-## 🌟 Advanced Features Ready for Implementation
-
-### **Planned Enhancements**
-- **WhatsApp Integration**: Auto-sync enquiries from WhatsApp Business API
-- **Facebook Integration**: Direct enquiry import from Facebook messages
-- **Email Notifications**: Automated customer updates via email
-- **SMS Integration**: Status updates via SMS gateway
-- **Analytics Dashboard**: Service performance metrics and reporting
-- **Multi-language Support**: Complete Hindi/Hinglish interface
-- **PDF Reports**: Printable service reports and invoices
-- **QR Code Generation**: Quick access codes for customers
-- **Photo Upload**: Device condition documentation
-- **Parts Ordering**: Direct supplier integration
-
-### **Scalability Features**
-- **Multi-branch Support**: Handle multiple service center locations
-- **Advanced Reporting**: Business intelligence and analytics
-- **Customer Self-Service**: Online status checking portal
-- **Automated Workflows**: Smart assignment and escalation rules
-- **Integration Hub**: Connect with Samsung official systems
-
-## 🏆 Business Impact
-This CRM system transforms Bijnor Services from a traditional service center into a modern, digitally-enabled operation with:
-- **Enhanced Customer Experience**: Professional online presence with self-service options
-- **Operational Efficiency**: Streamlined enquiry management and staff coordination
-- **Data-Driven Insights**: Complete customer interaction history and analytics
-- **Competitive Advantage**: Modern digital tools matching larger service chains
-- **Growth Ready**: Scalable architecture supporting business expansion
+## Architecture Highlights
+- **Clean Design**: Minimal, professional aesthetic with Samsung brand colors
+- **Mobile Responsive**: Optimized for both desktop and mobile use
+- **Role-Based Security**: Different access levels for admin and staff
+- **Audit Trail**: Complete tracking of all changes and interactions
+- **Fast Performance**: Edge-optimized with Cloudflare infrastructure
+- **Scalable**: Built for growth with proper database design
 
 ---
 
-**Built with ❤️ for Bijnor Services - Leading Samsung service provider in Bijnor, UP**
+**Last Updated**: September 23, 2025  
+**Version**: 1.0.0  
+**Developed for**: Bijnor Services - Authorized Samsung Service Center
