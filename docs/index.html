@@ -85,10 +85,10 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
-                        <img src="bijnor-logo.svg" alt="Bijnor Services Logo" class="h-12 w-auto mr-3">
+                        <img src="bijnor-services-logo.png" alt="Bijnor Services" class="h-10 w-auto mr-3">
                         <div>
-                            <span class="text-xl font-bold text-gray-800">Bijnor Services</span>
-                            <div class="text-sm text-gray-500">Samsung • Bajaj Allianz • WhatsApp CRM</div>
+                            <span class="text-xl font-bold text-gray-800">Professional Device Services</span>
+                            <div class="text-sm text-gray-500">Samsung Service Center • Bajaj Allianz Partner</div>
                         </div>
                     </div>
                 </div>
@@ -128,10 +128,10 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
                     <div class="mb-6">
-                        <img src="bijnor-logo.svg" alt="Bijnor Services" class="h-20 w-auto mx-auto mb-4">
+                        <img src="bijnor-services-logo.png" alt="Bijnor Services" class="h-24 w-auto mx-auto mb-4 bg-white rounded-lg p-4 shadow-lg">
                     </div>
                     <h1 class="text-4xl md:text-6xl font-bold mb-6">
-                        Bijnor Services
+                        Professional Device Services
                     </h1>
                     <p class="text-xl md:text-2xl mb-4 text-green-100">
                         Professional Device Service & Insurance Solutions
@@ -185,7 +185,10 @@
         <!-- Contact Channels -->
         <div class="py-16 bg-gray-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Multiple Ways to Connect</h2>
+                <div class="text-center mb-12">
+                    <img src="bijnor-services-logo.png" alt="Bijnor Services" class="h-12 w-auto mx-auto mb-4">
+                    <h2 class="text-3xl font-bold text-gray-900">Multiple Ways to Connect</h2>
+                </div>
                 <div class="grid md:grid-cols-4 gap-6">
                     <a href="https://wa.me/918006999806" target="_blank" class="card-hover bg-green-50 p-6 rounded-lg text-center border border-green-200">
                         <i class="fab fa-whatsapp text-4xl text-green-500 mb-4"></i>
@@ -623,10 +626,11 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-4 gap-8">
                 <div>
-                    <h3 class="text-lg font-semibold mb-4 flex items-center">
-                        <i class="fab fa-whatsapp text-green-400 mr-2"></i>Bijnor Services
-                    </h3>
-                    <p class="text-gray-300">WhatsApp-powered CRM for Samsung Service Center and Bajaj Allianz Insurance Claims</p>
+                    <div class="flex items-center mb-4">
+                        <img src="bijnor-services-logo.png" alt="Bijnor Services" class="h-8 w-auto mr-2 bg-white rounded p-1">
+                        <h3 class="text-lg font-semibold text-white">Bijnor Services</h3>
+                    </div>
+                    <p class="text-gray-300">Professional device services for Samsung Service Center and Bajaj Allianz Insurance Claims</p>
                 </div>
                 <div>
                     <h3 class="text-lg font-semibold mb-4">WhatsApp Services</h3>
@@ -967,15 +971,15 @@ Our team will contact you within 30 minutes!`);
             setTimeout(() => {
                 if (!localStorage.getItem('welcomeNotificationShown')) {
                     const notification = document.createElement('div');
-                    notification.className = 'fixed top-20 right-4 bg-blue-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm';
+                    notification.className = 'fixed top-20 right-4 bg-white text-gray-800 p-4 rounded-lg shadow-lg z-50 max-w-sm border border-blue-200';
                     notification.innerHTML = `
                         <div class="flex items-center">
-                            <img src="bijnor-logo.svg" class="h-8 w-8 mr-3">
+                            <img src="bijnor-services-logo.png" class="h-10 w-auto mr-3">
                             <div>
-                                <div class="font-semibold">Welcome to Bijnor Services!</div>
-                                <div class="text-sm">Professional device service & insurance solutions</div>
+                                <div class="font-semibold text-blue-800">Welcome to Bijnor Services!</div>
+                                <div class="text-sm text-gray-600">Professional device service & insurance solutions</div>
                             </div>
-                            <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
+                            <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-gray-500 hover:text-gray-700">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
