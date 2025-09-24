@@ -85,24 +85,37 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
-                        <i class="fab fa-whatsapp text-green-600 text-2xl mr-2"></i>
-                        <span class="text-xl font-bold text-gray-800">Bijnor Services</span>
-                        <span class="ml-2 text-sm text-gray-500">WhatsApp-Powered CRM</span>
+                        <img src="bijnor-logo.svg" alt="Bijnor Services Logo" class="h-12 w-auto mr-3">
+                        <div>
+                            <span class="text-xl font-bold text-gray-800">Bijnor Services</span>
+                            <div class="text-sm text-gray-500">Samsung • Bajaj Allianz • WhatsApp CRM</div>
+                        </div>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button onclick="showSection('home')" class="nav-btn text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Home</button>
-                    <button onclick="showSection('whatsapp-crm')" class="nav-btn text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">
-                        <i class="fab fa-whatsapp mr-1"></i>CRM
+                    <button onclick="showSection('home')" class="nav-btn text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-home mr-1"></i>Home
                     </button>
-                    <button onclick="showSection('claims')" class="nav-btn text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Claims</button>
-                    <a href="escalation-sla.html" class="nav-btn text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium relative">
+                    <button onclick="requireLogin('whatsapp-crm')" class="nav-btn text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-chart-bar mr-1"></i>CRM Dashboard
+                    </button>
+                    <button onclick="requireLogin('claims')" class="nav-btn text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-file-medical mr-1"></i>Service Requests
+                    </button>
+                    <a href="javascript:void(0)" onclick="accessSLADashboard()" class="nav-btn text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium relative" id="sla-dashboard-link" style="display:none;">
                         <i class="fas fa-chart-line mr-1"></i>SLA Dashboard
                         <span class="notification-badge" id="sla-badge">3</span>
                     </a>
-                    <button onclick="showSection('login')" class="nav-btn bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md text-sm font-medium">
-                        <i class="fas fa-sign-in-alt mr-1"></i>Login
+                    <button onclick="showSection('login')" class="nav-btn bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium" id="login-btn">
+                        <i class="fas fa-sign-in-alt mr-1"></i>Partner Login
                     </button>
+                    <div class="nav-btn text-gray-700 px-4 py-2 rounded-md text-sm font-medium" id="user-info" style="display:none;">
+                        <i class="fas fa-user-circle mr-2"></i>
+                        <span id="user-name">Welcome</span>
+                        <button onclick="logout()" class="ml-2 text-red-600 hover:text-red-800">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -114,53 +127,56 @@
         <div class="hero-gradient text-white py-20">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
+                    <div class="mb-6">
+                        <img src="bijnor-logo.svg" alt="Bijnor Services" class="h-20 w-auto mx-auto mb-4">
+                    </div>
                     <h1 class="text-4xl md:text-6xl font-bold mb-6">
-                        <i class="fab fa-whatsapp mr-4 pulse-animation"></i>Bijnor Services
+                        Bijnor Services
                     </h1>
                     <p class="text-xl md:text-2xl mb-4 text-green-100">
-                        WhatsApp-Powered CRM & Claims Processing
+                        Professional Device Service & Insurance Solutions
                     </p>
                     <p class="text-lg mb-8 text-green-200">
-                        Samsung Service Center • Bajaj Allianz Insurance • Real-time WhatsApp Updates
+                        Authorized Samsung Service Center • Bajaj Allianz Insurance Partner
                     </p>
                     <div class="flex flex-col md:flex-row gap-4 justify-center">
-                        <a href="https://wa.me/918006999806?text=Hi! I want to submit a new claim or check my existing claim status." class="whatsapp-gradient text-white px-8 py-4 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105">
-                            <i class="fab fa-whatsapp mr-2"></i>Start WhatsApp CRM
+                        <a href="https://wa.me/918006999806?text=Hi! I want to connect with Bijnor Services for device service or insurance assistance." class="whatsapp-gradient text-white px-8 py-4 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105">
+                            <i class="fab fa-whatsapp mr-2 text-2xl"></i>Connect via WhatsApp
                         </a>
-                        <button onclick="showSection('claims')" class="bg-white text-green-600 px-8 py-4 rounded-lg font-semibold hover:bg-green-50 transition-colors">
-                            <i class="fas fa-shield-alt mr-2"></i>Submit Claim Online
+                        <button onclick="requireLogin('claims')" class="bg-white text-green-600 px-8 py-4 rounded-lg font-semibold hover:bg-green-50 transition-colors">
+                            <i class="fas fa-file-medical mr-2"></i>Submit Service Request
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- WhatsApp Features -->
+        <!-- Service Features -->
         <div class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-bold text-center text-gray-900 mb-4">WhatsApp-First Experience</h2>
-                <p class="text-center text-gray-600 mb-12">Everything happens through WhatsApp - No app downloads needed!</p>
+                <h2 class="text-3xl font-bold text-center text-gray-900 mb-4">Professional Service Experience</h2>
+                <p class="text-center text-gray-600 mb-12">Seamless communication through modern messaging platform</p>
                 
                 <div class="grid md:grid-cols-4 gap-6">
                     <div class="card-hover bg-green-50 p-6 rounded-lg text-center border border-green-200">
-                        <i class="fab fa-whatsapp text-5xl text-green-500 mb-4"></i>
-                        <h3 class="font-semibold text-gray-900 mb-2">Submit Claims</h3>
-                        <p class="text-gray-600 text-sm">Send photos & details via WhatsApp</p>
+                        <i class="fas fa-file-medical text-5xl text-green-500 mb-4"></i>
+                        <h3 class="font-semibold text-gray-900 mb-2">Service Requests</h3>
+                        <p class="text-gray-600 text-sm">Submit device service requirements with documentation</p>
                     </div>
                     <div class="card-hover bg-blue-50 p-6 rounded-lg text-center border border-blue-200">
-                        <i class="fas fa-bell text-5xl text-blue-500 mb-4"></i>
-                        <h3 class="font-semibold text-gray-900 mb-2">Real-time Updates</h3>
-                        <p class="text-gray-600 text-sm">Get instant status notifications</p>
+                        <i class="fas fa-clock text-5xl text-blue-500 mb-4"></i>
+                        <h3 class="font-semibold text-gray-900 mb-2">Status Tracking</h3>
+                        <p class="text-gray-600 text-sm">Real-time progress updates and notifications</p>
                     </div>
                     <div class="card-hover bg-purple-50 p-6 rounded-lg text-center border border-purple-200">
-                        <i class="fas fa-robot text-5xl text-purple-500 mb-4"></i>
-                        <h3 class="font-semibold text-gray-900 mb-2">AI Assistant</h3>
-                        <p class="text-gray-600 text-sm">24/7 automated support bot</p>
+                        <i class="fas fa-headset text-5xl text-purple-500 mb-4"></i>
+                        <h3 class="font-semibold text-gray-900 mb-2">Support System</h3>
+                        <p class="text-gray-600 text-sm">Professional customer assistance available</p>
                     </div>
                     <div class="card-hover bg-yellow-50 p-6 rounded-lg text-center border border-yellow-200">
-                        <i class="fas fa-user-friends text-5xl text-yellow-500 mb-4"></i>
-                        <h3 class="font-semibold text-gray-900 mb-2">Human Support</h3>
-                        <p class="text-gray-600 text-sm">Connect with real agents instantly</p>
+                        <i class="fas fa-shield-alt text-5xl text-yellow-500 mb-4"></i>
+                        <h3 class="font-semibold text-gray-900 mb-2">Quality Assurance</h3>
+                        <p class="text-gray-600 text-sm">Professional service standards and warranties</p>
                     </div>
                 </div>
             </div>
@@ -447,18 +463,20 @@
                     </div>
                 </div>
 
-                <!-- SLA Commitment Notice -->
+                <!-- Service Commitment Notice -->
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
                     <div class="flex items-center">
-                        <i class="fas fa-clock text-blue-500 text-2xl mr-3"></i>
+                        <i class="fas fa-handshake text-blue-500 text-2xl mr-3"></i>
                         <div>
-                            <h4 class="font-semibold text-blue-800">Industry-Standard SLA Commitment</h4>
-                            <p class="text-blue-700 text-sm mb-2">We guarantee response times with automatic escalation:</p>
+                            <h4 class="font-semibold text-blue-800">Professional Service Commitment</h4>
+                            <p class="text-blue-700 text-sm mb-2">Our service standards with systematic follow-up:</p>
                             <div class="grid grid-cols-2 gap-2 text-xs text-blue-600">
-                                <span>• ✅ Acknowledgment: 15 minutes</span>
-                                <span>• ✅ Assessment: 2 hours</span>
-                                <span>• ✅ Partner Assignment: 4 hours</span>
-                                <span>• ✅ Service Start: 8 hours</span>
+                                <span>• ✅ Initial Contact: 4 hours</span>
+                                <span>• ✅ Appointment Setup: Same day</span>
+                                <span>• ✅ Follow-up Day 1: 24 hours</span>
+                                <span>• ✅ Follow-up Day 2: 48 hours</span>
+                                <span>• ✅ Follow-up Day 3: 72 hours</span>
+                                <span>• ✅ Automatic Escalation: If needed</span>
                             </div>
                         </div>
                     </div>
@@ -642,6 +660,86 @@
     </footer>
 
     <script>
+        // User session management
+        let currentUser = null;
+
+        // Check if user is logged in
+        function isLoggedIn() {
+            const session = localStorage.getItem('bijnorUserSession');
+            if (session) {
+                currentUser = JSON.parse(session);
+                return true;
+            }
+            return false;
+        }
+
+        // Require login before accessing sections
+        function requireLogin(sectionName) {
+            if (!isLoggedIn()) {
+                alert('🔐 Login Required\n\nPlease login as a partner to access ' + 
+                      (sectionName === 'claims' ? 'Service Requests' : 'CRM Dashboard') + 
+                      '\n\nFor immediate assistance, use WhatsApp support.');
+                showSection('login');
+                return false;
+            }
+            
+            // Check SLA dashboard access
+            if (sectionName === 'sla-dashboard' && currentUser.role !== 'admin') {
+                alert('🚫 Access Restricted\n\nSLA Dashboard is only available for administrators.\n\nPlease contact your system administrator for access.');
+                return false;
+            }
+            
+            showSection(sectionName);
+            return true;
+        }
+
+        // Access SLA dashboard with admin check
+        function accessSLADashboard() {
+            if (!isLoggedIn()) {
+                alert('🔐 Admin Login Required\n\nSLA Dashboard requires administrator access.\n\nPlease login with admin credentials.');
+                showSection('login');
+                return;
+            }
+            
+            if (currentUser.role !== 'admin') {
+                alert('🚫 Admin Access Only\n\nSLA Dashboard is restricted to administrators.\n\nContact system admin for escalation access.');
+                return;
+            }
+            
+            window.open('escalation-sla.html', '_blank');
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('bijnorUserSession');
+            currentUser = null;
+            updateUIForLogin();
+            showSection('home');
+            alert('✅ Logged out successfully');
+        }
+
+        // Update UI based on login status
+        function updateUIForLogin() {
+            const loginBtn = document.getElementById('login-btn');
+            const userInfo = document.getElementById('user-info');
+            const slaLink = document.getElementById('sla-dashboard-link');
+            
+            if (isLoggedIn()) {
+                loginBtn.style.display = 'none';
+                userInfo.style.display = 'block';
+                document.getElementById('user-name').textContent = currentUser.name || currentUser.username;
+                
+                // Show SLA dashboard for admins only
+                if (currentUser.role === 'admin') {
+                    slaLink.style.display = 'block';
+                }
+            } else {
+                loginBtn.style.display = 'block';
+                userInfo.style.display = 'none';
+                slaLink.style.display = 'none';
+            }
+        }
+
         // Navigation functionality
         function showSection(sectionName) {
             document.querySelectorAll('.section').forEach(section => {
@@ -719,9 +817,41 @@
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
             
-            // Store credentials and redirect to WhatsApp for verification
-            const whatsappMessage = `*LOGIN REQUEST* - Username: ${username} | Please verify my credentials and provide dashboard access.`;
-            window.open(`https://wa.me/918006999806?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+            // Mock authentication for demo (replace with real auth)
+            const validCredentials = {
+                'admin': { password: 'admin123', name: 'Administrator', role: 'admin' },
+                'samsung_partner': { password: 'samsung123', name: 'Samsung Partner', role: 'samsung' },
+                'bajaj_partner': { password: 'bajaj123', name: 'Bajaj Partner', role: 'bajaj' },
+                'dealer': { password: 'dealer123', name: 'Dealer Partner', role: 'dealer' }
+            };
+            
+            if (validCredentials[username] && validCredentials[username].password === password) {
+                // Successful login
+                const userData = {
+                    username: username,
+                    name: validCredentials[username].name,
+                    role: validCredentials[username].role,
+                    loginTime: new Date().toISOString()
+                };
+                
+                storeUserSession(userData);
+                updateUIForLogin();
+                
+                alert(`✅ Login Successful!\n\nWelcome ${userData.name}\nRole: ${userData.role.charAt(0).toUpperCase() + userData.role.slice(1)}`);
+                
+                // Redirect to appropriate dashboard
+                if (userData.role === 'admin') {
+                    showSection('whatsapp-crm');
+                } else {
+                    showSection('whatsapp-crm');
+                }
+                
+            } else {
+                // Failed login - redirect to WhatsApp for verification
+                alert('❌ Invalid credentials. Redirecting to WhatsApp for manual verification...');
+                const whatsappMessage = `*LOGIN REQUEST* - Username: ${username} | Please verify my credentials and provide dashboard access.`;
+                window.open(`https://wa.me/918006999806?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+            }
         });
 
         // Enhanced claims form with WhatsApp integration
@@ -829,34 +959,39 @@ Our team will contact you within 30 minutes!`);
             });
         };
 
-        // Show WhatsApp notification on page load
-        setTimeout(() => {
-            if (!localStorage.getItem('whatsappNotificationShown')) {
-                const notification = document.createElement('div');
-                notification.className = 'fixed top-20 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm';
-                notification.innerHTML = `
-                    <div class="flex items-center">
-                        <i class="fab fa-whatsapp text-2xl mr-3"></i>
-                        <div>
-                            <div class="font-semibold">WhatsApp CRM Active!</div>
-                            <div class="text-sm">Try sending "*NEW CLAIM*" to get started</div>
+        // Initialize application on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUIForLogin();
+            
+            // Show welcome notification
+            setTimeout(() => {
+                if (!localStorage.getItem('welcomeNotificationShown')) {
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed top-20 right-4 bg-blue-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm';
+                    notification.innerHTML = `
+                        <div class="flex items-center">
+                            <img src="bijnor-logo.svg" class="h-8 w-8 mr-3">
+                            <div>
+                                <div class="font-semibold">Welcome to Bijnor Services!</div>
+                                <div class="text-sm">Professional device service & insurance solutions</div>
+                            </div>
+                            <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
-                        <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                `;
-                document.body.appendChild(notification);
-                
-                setTimeout(() => {
-                    if (notification.parentElement) {
-                        notification.remove();
-                    }
-                }, 10000);
-                
-                localStorage.setItem('whatsappNotificationShown', 'true');
-            }
-        }, 3000);
+                    `;
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => {
+                        if (notification.parentElement) {
+                            notification.remove();
+                        }
+                    }, 8000);
+                    
+                    localStorage.setItem('welcomeNotificationShown', 'true');
+                }
+            }, 2000);
+        });
     </script>
 </body>
 </html>

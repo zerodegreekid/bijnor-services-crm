@@ -1,40 +1,40 @@
 {
   "sla_standards": {
     "insurance_claims": {
-      "initial_acknowledgment": {
-        "target_time_minutes": 15,
-        "escalation_l1": 30,
-        "escalation_l2": 60,
-        "escalation_l3": 120,
-        "escalation_l4": 240
-      },
-      "claim_assessment": {
-        "target_time_hours": 2,
-        "escalation_l1": 4,
-        "escalation_l2": 8,
-        "escalation_l3": 24,
-        "escalation_l4": 48
-      },
-      "partner_assignment": {
+      "initial_contact": {
         "target_time_hours": 4,
-        "escalation_l1": 6,
-        "escalation_l2": 12,
-        "escalation_l3": 24,
-        "escalation_l4": 48
-      },
-      "service_initiation": {
-        "target_time_hours": 8,
-        "escalation_l1": 12,
+        "escalation_l1": 8,
         "escalation_l2": 24,
-        "escalation_l3": 48,
-        "escalation_l4": 72
+        "escalation_l3": 72,
+        "escalation_l4": 120
       },
-      "repair_completion": {
-        "target_time_days": 3,
-        "escalation_l1": 4,
-        "escalation_l2": 5,
-        "escalation_l3": 7,
-        "escalation_l4": 10
+      "appointment_scheduling": {
+        "target_time_hours": 4,
+        "escalation_l1": 8,
+        "escalation_l2": 24,
+        "escalation_l3": 72,
+        "escalation_l4": 120
+      },
+      "follow_up_day_1": {
+        "target_time_hours": 24,
+        "escalation_l1": 48,
+        "escalation_l2": 72,
+        "escalation_l3": 96,
+        "escalation_l4": 144
+      },
+      "follow_up_day_2": {
+        "target_time_hours": 48,
+        "escalation_l1": 72,
+        "escalation_l2": 96,
+        "escalation_l3": 120,
+        "escalation_l4": 168
+      },
+      "follow_up_day_3": {
+        "target_time_hours": 72,
+        "escalation_l1": 96,
+        "escalation_l2": 120,
+        "escalation_l3": 144,
+        "escalation_l4": 192
       },
       "claim_settlement": {
         "target_time_days": 7,
@@ -92,43 +92,43 @@
   "escalation_matrix": {
     "level_1": {
       "title": "Team Lead Escalation",
-      "triggers": ["sla_warning_75_percent", "customer_complaint"],
+      "triggers": ["missed_4hr_initial_contact", "customer_complaint"],
       "escalated_to": ["team_lead", "senior_technician"],
       "actions": [
-        "Internal review and resource reallocation",
-        "Priority adjustment",
-        "Customer notification via WhatsApp"
+        "Review customer contact attempts within 4 hours",
+        "Priority adjustment and immediate callback",
+        "Customer notification via messaging platform"
       ],
       "whatsapp_notifications": ["team_lead", "customer"],
-      "auto_escalation_time_hours": 2
+      "auto_escalation_time_hours": 8
     },
     "level_2": {
       "title": "Management Escalation", 
-      "triggers": ["sla_breach", "level_1_timeout", "customer_escalation"],
+      "triggers": ["missed_followup_day1", "level_1_timeout", "customer_escalation"],
       "escalated_to": ["department_manager", "operations_head"],
       "actions": [
         "Manager intervention and process review",
-        "Customer escalation call",
-        "Partner performance review"
+        "Direct customer escalation call within 24 hours",
+        "Partner performance review and coaching"
       ],
       "whatsapp_notifications": ["manager", "customer", "partner"],
-      "auto_escalation_time_hours": 4
+      "auto_escalation_time_hours": 24
     },
     "level_3": {
       "title": "Regional Escalation",
-      "triggers": ["multiple_sla_breaches", "level_2_timeout", "customer_threat"],
+      "triggers": ["missed_followup_day2", "level_2_timeout", "customer_threat"],
       "escalated_to": ["regional_head", "quality_assurance"],
       "actions": [
         "Regional investigation and process audit",
         "Compensation review and approval",
-        "Partner contract review"
+        "Partner contract review and training"
       ],
       "whatsapp_notifications": ["all_stakeholders", "management"],
-      "auto_escalation_time_hours": 8
+      "auto_escalation_time_hours": 48
     },
     "level_4": {
       "title": "Executive Escalation",
-      "triggers": ["critical_sla_failures", "level_3_timeout", "legal_threat"],
+      "triggers": ["missed_followup_day3", "level_3_timeout", "legal_threat"],
       "escalated_to": ["ceo_director", "partner_relations"],
       "actions": [
         "Executive intervention and policy review",
@@ -136,7 +136,7 @@
         "Legal and compliance review"
       ],
       "whatsapp_notifications": ["executive_team", "partners", "customer"],
-      "auto_escalation_time_hours": 12
+      "auto_escalation_time_hours": 72
     }
   },
   "whatsapp_commands": {

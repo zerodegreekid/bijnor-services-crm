@@ -1,0 +1,30 @@
+<svg viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#60a5fa;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="40" cy="40" r="35" fill="url(#gradient)" />
+  
+  <!-- Service tools icon -->
+  <path d="M25 30 L35 20 L45 30 L55 20 L55 25 L50 30 L55 35 L55 40 L45 50 L35 40 L25 50 L25 45 L30 40 L25 35 Z" 
+        fill="white" stroke="white" stroke-width="1"/>
+  
+  <!-- Mobile device -->
+  <rect x="32" y="25" width="16" height="30" rx="3" fill="white" stroke="#1e40af" stroke-width="1"/>
+  <circle cx="40" cy="50" r="2" fill="#1e40af"/>
+  
+  <!-- Company name -->
+  <text x="85" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1e40af">
+    BIJNOR SERVICES
+  </text>
+  
+  <!-- Tagline -->
+  <text x="85" y="55" font-family="Arial, sans-serif" font-size="12" fill="#6b7280">
+    Samsung • Bajaj Allianz • WhatsApp CRM
+  </text>
+</svg>
