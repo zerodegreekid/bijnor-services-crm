@@ -96,6 +96,10 @@
                         <i class="fab fa-whatsapp mr-1"></i>CRM
                     </button>
                     <button onclick="showSection('claims')" class="nav-btn text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Claims</button>
+                    <a href="escalation-sla.html" class="nav-btn text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium relative">
+                        <i class="fas fa-chart-line mr-1"></i>SLA Dashboard
+                        <span class="notification-badge" id="sla-badge">3</span>
+                    </a>
                     <button onclick="showSection('login')" class="nav-btn bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-sign-in-alt mr-1"></i>Login
                     </button>
@@ -241,12 +245,20 @@
                                     <p class="text-sm text-gray-600">Update claim status</p>
                                 </div>
                                 <div class="bg-gray-50 p-3 rounded">
-                                    <code class="text-blue-600 font-mono">*ASSIGN [CLAIM_ID] [PARTNER]*</code>
-                                    <p class="text-sm text-gray-600">Assign claim to partner</p>
+                                    <code class="text-blue-600 font-mono">*SLA STATUS [CASE_ID]*</code>
+                                    <p class="text-sm text-gray-600">Check SLA compliance</p>
                                 </div>
                                 <div class="bg-gray-50 p-3 rounded">
-                                    <code class="text-blue-600 font-mono">*REPORTS*</code>
-                                    <p class="text-sm text-gray-600">Get performance reports</p>
+                                    <code class="text-blue-600 font-mono">*ESCALATE [CASE_ID] [REASON]*</code>
+                                    <p class="text-sm text-gray-600">Manual escalation</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <code class="text-blue-600 font-mono">*SLA REPORT*</code>
+                                    <p class="text-sm text-gray-600">Get SLA performance</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <code class="text-blue-600 font-mono">*URGENT [CASE_ID]*</code>
+                                    <p class="text-sm text-gray-600">Mark as urgent priority</p>
                                 </div>
                             </div>
                         </div>
@@ -290,15 +302,20 @@
                                class="block w-full bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors">
                                 <i class="fas fa-chart-line mr-2"></i>Partner Dashboard
                             </a>
+                            <a href="https://wa.me/918006999806?text=*SLA REPORT* - Send current SLA performance and breach alerts" 
+                               target="_blank" 
+                               class="block w-full bg-red-600 text-white p-4 rounded-lg hover:bg-red-700 transition-colors">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>SLA Monitor
+                            </a>
                             <a href="https://wa.me/918006999806?text=*UPDATE BA2025001 IN_PROGRESS* - Updating claim status to in progress" 
                                target="_blank" 
                                class="block w-full bg-yellow-600 text-white p-4 rounded-lg hover:bg-yellow-700 transition-colors">
-                                <i class="fas fa-edit mr-2"></i>Update Claim Status
+                                <i class="fas fa-edit mr-2"></i>Update Status
                             </a>
-                            <a href="https://wa.me/918006999806?text=*REPORTS* - Send me today's performance report" 
+                            <a href="https://wa.me/918006999806?text=*ESCALATE BA2025001 SLA_BREACH* - Manual escalation due to SLA breach" 
                                target="_blank" 
-                               class="block w-full bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors">
-                                <i class="fas fa-file-alt mr-2"></i>Get Reports
+                               class="block w-full bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors">
+                                <i class="fas fa-arrow-up mr-2"></i>Escalate Case
                             </a>
                         </div>
                     </div>
@@ -419,13 +436,30 @@
                 <h2 class="text-3xl font-bold text-center text-gray-900 mb-4">Submit Insurance Claim</h2>
                 <p class="text-center text-gray-600 mb-8">You'll get instant WhatsApp updates throughout the process</p>
                 
-                <!-- WhatsApp Integration Notice -->
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
+                <!-- WhatsApp Integration Notice with SLA -->
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                     <div class="flex items-center">
                         <i class="fab fa-whatsapp text-green-500 text-2xl mr-3"></i>
                         <div>
                             <h4 class="font-semibold text-green-800">WhatsApp Integration Active</h4>
                             <p class="text-green-700 text-sm">After submission, you'll receive instant WhatsApp confirmation and updates at each step.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLA Commitment Notice -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-clock text-blue-500 text-2xl mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-blue-800">Industry-Standard SLA Commitment</h4>
+                            <p class="text-blue-700 text-sm mb-2">We guarantee response times with automatic escalation:</p>
+                            <div class="grid grid-cols-2 gap-2 text-xs text-blue-600">
+                                <span>• ✅ Acknowledgment: 15 minutes</span>
+                                <span>• ✅ Assessment: 2 hours</span>
+                                <span>• ✅ Partner Assignment: 4 hours</span>
+                                <span>• ✅ Service Start: 8 hours</span>
+                            </div>
                         </div>
                     </div>
                 </div>

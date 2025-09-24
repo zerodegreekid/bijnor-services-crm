@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bijnor Services - SLA & Escalation Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sla-breached { background: #fef2f2; border-left: 4px solid #ef4444; }
+        .sla-warning { background: #fffbeb; border-left: 4px solid #f59e0b; }
+        .sla-good { background: #f0fdf4; border-left: 4px solid #22c55e; }
+        .escalation-l1 { background: #dbeafe; color: #1e40af; }
+        .escalation-l2 { background: #fef3c7; color: #d97706; }
+        .escalation-l3 { background: #fecaca; color: #dc2626; }
+        .escalation-l4 { background: #f3e8ff; color: #7c3aed; }
+        .pulse-red { animation: pulse 2s infinite; background-color: #ef4444; }
+        .pulse-yellow { animation: pulse 2s infinite; background-color: #f59e0b; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-chart-line text-red-600 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-gray-800">SLA & Escalation Dashboard</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-home mr-1"></i>Back to CRM
+                    </a>
+                    <div class="relative">
+                        <button class="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-medium pulse-red">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            <span id="breached-count">0</span> SLA Breaches
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- SLA Overview -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">SLA & Escalation Management</h1>
+            <p class="text-gray-600">Industry-standard service level agreements with automated escalation matrix</p>
+        </div>
+
+        <!-- Real-time SLA Dashboard -->
+        <div class="grid lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-clock text-3xl text-green-500"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">On-Time Performance</h3>
+                        <p class="text-2xl font-bold text-gray-900" id="on-time-percentage">94.2%</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-3xl text-yellow-500"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">SLA Warnings</h3>
+                        <p class="text-2xl font-bold text-yellow-600" id="sla-warnings">7</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-fire text-3xl text-red-500"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">SLA Breaches</h3>
+                        <p class="text-2xl font-bold text-red-600" id="sla-breaches">3</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-arrow-up text-3xl text-purple-500"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Active Escalations</h3>
+                        <p class="text-2xl font-bold text-purple-600" id="active-escalations">2</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Escalation Matrix -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">
+                <i class="fas fa-sitemap text-blue-500 mr-2"></i>Escalation Matrix
+            </h2>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Level</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trigger Time</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Escalated To</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">WhatsApp Alerts</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <span class="escalation-l1 px-2 py-1 text-xs font-semibold rounded-full">Level 1</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <strong>4 hours</strong> (Claims)<br>
+                                <strong>2 hours</strong> (Samsung Service)
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                Team Lead<br>
+                                Senior Technician
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                • Internal review<br>
+                                • Resource reallocation<br>
+                                • Priority adjustment
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                Team Lead + Customer notification
+                            </td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <span class="escalation-l2 px-2 py-1 text-xs font-semibold rounded-full">Level 2</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <strong>8 hours</strong> (Claims)<br>
+                                <strong>6 hours</strong> (Samsung Service)
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                Department Manager<br>
+                                Operations Head
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                • Manager intervention<br>
+                                • Process review<br>
+                                • Customer escalation call
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                Manager + Customer + Partner alerts
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <span class="escalation-l3 px-2 py-1 text-xs font-semibold rounded-full">Level 3</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <strong>24 hours</strong> (Claims)<br>
+                                <strong>12 hours</strong> (Samsung Service)
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                Regional Head<br>
+                                Quality Assurance
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                • Regional escalation<br>
+                                • QA investigation<br>
+                                • Compensation review
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                All stakeholders + Management
+                            </td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <span class="escalation-l4 px-2 py-1 text-xs font-semibold rounded-full">Level 4</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <strong>48 hours</strong> (Claims)<br>
+                                <strong>24 hours</strong> (Samsung Service)
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                CEO/Director<br>
+                                Partner Relations
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                • Executive intervention<br>
+                                • Partner escalation<br>
+                                • Policy review
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                Executive team + Partners + Customer
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SLA Standards -->
+        <div class="grid lg:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-shield-alt text-blue-500 mr-2"></i>Insurance Claims SLA
+                </h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-3 bg-green-50 rounded">
+                        <span class="font-medium">Initial Acknowledgment</span>
+                        <span class="text-green-600 font-bold">15 minutes</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-blue-50 rounded">
+                        <span class="font-medium">Claim Assessment</span>
+                        <span class="text-blue-600 font-bold">2 hours</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-yellow-50 rounded">
+                        <span class="font-medium">Partner Assignment</span>
+                        <span class="text-yellow-600 font-bold">4 hours</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-purple-50 rounded">
+                        <span class="font-medium">Service Initiation</span>
+                        <span class="text-purple-600 font-bold">8 hours</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-green-50 rounded">
+                        <span class="font-medium">Repair Completion</span>
+                        <span class="text-green-600 font-bold">3-5 business days</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-blue-50 rounded">
+                        <span class="font-medium">Claim Settlement</span>
+                        <span class="text-blue-600 font-bold">7 business days</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-mobile-alt text-green-500 mr-2"></i>Samsung Service SLA
+                </h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-3 bg-green-50 rounded">
+                        <span class="font-medium">Enquiry Response</span>
+                        <span class="text-green-600 font-bold">5 minutes</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-blue-50 rounded">
+                        <span class="font-medium">Diagnosis</span>
+                        <span class="text-blue-600 font-bold">30 minutes</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-yellow-50 rounded">
+                        <span class="font-medium">Quotation Provided</span>
+                        <span class="text-yellow-600 font-bold">1 hour</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-purple-50 rounded">
+                        <span class="font-medium">Repair Start</span>
+                        <span class="text-purple-600 font-bold">2 hours</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-green-50 rounded">
+                        <span class="font-medium">Repair Completion</span>
+                        <span class="text-green-600 font-bold">Same day</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-blue-50 rounded">
+                        <span class="font-medium">Quality Check</span>
+                        <span class="text-blue-600 font-bold">30 minutes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active SLA Monitoring -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h3 class="text-2xl font-bold text-gray-900 mb-6">
+                <i class="fas fa-chart-line text-red-500 mr-2"></i>Live SLA Monitoring
+            </h3>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Case ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Elapsed</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SLA Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Escalation</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="sla-monitoring-table">
+                        <!-- Live data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- WhatsApp Escalation Commands -->
+        <div class="bg-gradient-to-r from-red-500 to-orange-600 rounded-lg p-8 text-white">
+            <h3 class="text-2xl font-semibold mb-6 text-center">
+                <i class="fab fa-whatsapp mr-2"></i>WhatsApp Escalation Commands
+            </h3>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold mb-4 text-yellow-100">Management Commands</h4>
+                    <div class="space-y-3">
+                        <div class="bg-white bg-opacity-20 p-3 rounded">
+                            <code class="text-yellow-200">*SLA REPORT*</code>
+                            <p class="text-sm text-gray-100">Get current SLA performance</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded">
+                            <code class="text-yellow-200">*ESCALATION LIST*</code>
+                            <p class="text-sm text-gray-100">Show active escalations</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded">
+                            <code class="text-yellow-200">*BREACH ALERT*</code>
+                            <p class="text-sm text-gray-100">Immediate SLA breach notifications</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4 text-yellow-100">Partner Commands</h4>
+                    <div class="space-y-3">
+                        <div class="bg-white bg-opacity-20 p-3 rounded">
+                            <code class="text-yellow-200">*ESCALATE [CASE_ID] [REASON]*</code>
+                            <p class="text-sm text-gray-100">Manual escalation with reason</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded">
+                            <code class="text-yellow-200">*SLA STATUS [CASE_ID]*</code>
+                            <p class="text-sm text-gray-100">Check SLA compliance for case</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded">
+                            <code class="text-yellow-200">*URGENT [CASE_ID]*</code>
+                            <p class="text-sm text-gray-100">Mark case as urgent priority</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-6">
+                <a href="https://wa.me/918006999806?text=*SLA REPORT* - Please send current SLA performance dashboard" 
+                   target="_blank" 
+                   class="inline-block bg-white text-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                    <i class="fab fa-whatsapp mr-2"></i>Get Live SLA Report via WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for SLA monitoring
+        const slaData = [
+            {
+                caseId: 'BA2025001',
+                type: 'Insurance Claim',
+                status: 'Assessment',
+                timeElapsed: '6h 30m',
+                slaStatus: 'breach',
+                nextEscalation: 'Level 2 (1h 30m)',
+                customer: 'Raj Kumar'
+            },
+            {
+                caseId: 'BSC2025045',
+                type: 'Samsung Service',
+                status: 'Diagnosis',
+                timeElapsed: '25m',
+                slaStatus: 'good',
+                nextEscalation: 'Level 1 (5m)',
+                customer: 'Priya Sharma'
+            },
+            {
+                caseId: 'BA2025002',
+                type: 'Insurance Claim',
+                status: 'Partner Assignment',
+                timeElapsed: '3h 45m',
+                slaStatus: 'warning',
+                nextEscalation: 'Level 1 (15m)',
+                customer: 'Amit Singh'
+            },
+            {
+                caseId: 'BSC2025046',
+                type: 'Samsung Service',
+                status: 'Repair',
+                timeElapsed: '4h 15m',
+                slaStatus: 'breach',
+                nextEscalation: 'Level 2 (Now!)',
+                customer: 'Sunita Devi'
+            },
+            {
+                caseId: 'BA2025003',
+                type: 'Insurance Claim',
+                status: 'In Progress',
+                timeElapsed: '2h 10m',
+                slaStatus: 'good',
+                nextEscalation: 'Level 1 (1h 50m)',
+                customer: 'Vikram Gupta'
+            }
+        ];
+
+        // Populate SLA monitoring table
+        function populateSLATable() {
+            const tbody = document.getElementById('sla-monitoring-table');
+            tbody.innerHTML = '';
+
+            slaData.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = `sla-${item.slaStatus}`;
+                
+                const slaStatusBadge = {
+                    good: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">On Time</span>',
+                    warning: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 pulse-yellow">Warning</span>',
+                    breach: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 pulse-red">BREACH</span>'
+                };
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${item.caseId}</div>
+                        <div class="text-sm text-gray-500">${item.customer}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${item.type}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${item.status}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${item.timeElapsed}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${slaStatusBadge[item.slaStatus]}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${item.nextEscalation}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="escalateCase('${item.caseId}')" class="text-red-600 hover:text-red-900 mr-2">
+                            <i class="fas fa-arrow-up"></i> Escalate
+                        </button>
+                        <button onclick="whatsappUpdate('${item.caseId}')" class="text-green-600 hover:text-green-900">
+                            <i class="fab fa-whatsapp"></i> Alert
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Escalate case function
+        function escalateCase(caseId) {
+            const whatsappMessage = `*MANUAL ESCALATION*
+
+Case ID: ${caseId}
+Escalated by: Management Dashboard
+Reason: SLA breach intervention required
+Time: ${new Date().toLocaleString()}
+
+Please prioritize this case and provide immediate action plan.`;
+            
+            window.open(`https://wa.me/918006999806?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+        }
+
+        // WhatsApp update function
+        function whatsappUpdate(caseId) {
+            const whatsappMessage = `*SLA ALERT*
+
+Case ID: ${caseId}
+Alert Type: Management Intervention
+Action Required: Immediate status update needed
+
+Please provide current status and expected completion time.`;
+            
+            window.open(`https://wa.me/918006999806?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+        }
+
+        // Update dashboard statistics
+        function updateStats() {
+            const breaches = slaData.filter(item => item.slaStatus === 'breach').length;
+            const warnings = slaData.filter(item => item.slaStatus === 'warning').length;
+            const escalations = 2; // Active escalations
+            
+            document.getElementById('breached-count').textContent = breaches;
+            document.getElementById('sla-breaches').textContent = breaches;
+            document.getElementById('sla-warnings').textContent = warnings;
+            document.getElementById('active-escalations').textContent = escalations;
+        }
+
+        // Auto-refresh every 30 seconds
+        function autoRefresh() {
+            // Simulate real-time updates
+            const now = new Date();
+            slaData.forEach(item => {
+                // Simulate time progression
+                if (Math.random() > 0.7) {
+                    const currentMinutes = parseInt(item.timeElapsed.split('h')[1]) || 0;
+                    if (currentMinutes < 55) {
+                        item.timeElapsed = item.timeElapsed.replace(/\d+m/, (currentMinutes + 5) + 'm');
+                    }
+                }
+            });
+            
+            populateSLATable();
+            updateStats();
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            populateSLATable();
+            updateStats();
+            
+            // Set up auto-refresh
+            setInterval(autoRefresh, 30000); // Refresh every 30 seconds
+            
+            // Show notification for SLA breaches
+            setTimeout(() => {
+                const breachCount = slaData.filter(item => item.slaStatus === 'breach').length;
+                if (breachCount > 0) {
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed top-20 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm pulse-red';
+                    notification.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-2xl mr-3"></i>
+                            <div>
+                                <div class="font-semibold">SLA BREACH ALERT!</div>
+                                <div class="text-sm">${breachCount} cases need immediate attention</div>
+                            </div>
+                            <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    document.body.appendChild(notification);
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

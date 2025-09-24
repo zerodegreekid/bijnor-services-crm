@@ -1,0 +1,182 @@
+{
+  "sla_standards": {
+    "insurance_claims": {
+      "initial_acknowledgment": {
+        "target_time_minutes": 15,
+        "escalation_l1": 30,
+        "escalation_l2": 60,
+        "escalation_l3": 120,
+        "escalation_l4": 240
+      },
+      "claim_assessment": {
+        "target_time_hours": 2,
+        "escalation_l1": 4,
+        "escalation_l2": 8,
+        "escalation_l3": 24,
+        "escalation_l4": 48
+      },
+      "partner_assignment": {
+        "target_time_hours": 4,
+        "escalation_l1": 6,
+        "escalation_l2": 12,
+        "escalation_l3": 24,
+        "escalation_l4": 48
+      },
+      "service_initiation": {
+        "target_time_hours": 8,
+        "escalation_l1": 12,
+        "escalation_l2": 24,
+        "escalation_l3": 48,
+        "escalation_l4": 72
+      },
+      "repair_completion": {
+        "target_time_days": 3,
+        "escalation_l1": 4,
+        "escalation_l2": 5,
+        "escalation_l3": 7,
+        "escalation_l4": 10
+      },
+      "claim_settlement": {
+        "target_time_days": 7,
+        "escalation_l1": 10,
+        "escalation_l2": 14,
+        "escalation_l3": 21,
+        "escalation_l4": 30
+      }
+    },
+    "samsung_service": {
+      "enquiry_response": {
+        "target_time_minutes": 5,
+        "escalation_l1": 15,
+        "escalation_l2": 30,
+        "escalation_l3": 60,
+        "escalation_l4": 120
+      },
+      "diagnosis": {
+        "target_time_minutes": 30,
+        "escalation_l1": 60,
+        "escalation_l2": 120,
+        "escalation_l3": 240,
+        "escalation_l4": 480
+      },
+      "quotation_provided": {
+        "target_time_hours": 1,
+        "escalation_l1": 2,
+        "escalation_l2": 4,
+        "escalation_l3": 8,
+        "escalation_l4": 24
+      },
+      "repair_start": {
+        "target_time_hours": 2,
+        "escalation_l1": 4,
+        "escalation_l2": 6,
+        "escalation_l3": 12,
+        "escalation_l4": 24
+      },
+      "repair_completion": {
+        "target_time_hours": 8,
+        "escalation_l1": 12,
+        "escalation_l2": 24,
+        "escalation_l3": 48,
+        "escalation_l4": 72
+      },
+      "quality_check": {
+        "target_time_minutes": 30,
+        "escalation_l1": 60,
+        "escalation_l2": 120,
+        "escalation_l3": 240,
+        "escalation_l4": 480
+      }
+    }
+  },
+  "escalation_matrix": {
+    "level_1": {
+      "title": "Team Lead Escalation",
+      "triggers": ["sla_warning_75_percent", "customer_complaint"],
+      "escalated_to": ["team_lead", "senior_technician"],
+      "actions": [
+        "Internal review and resource reallocation",
+        "Priority adjustment",
+        "Customer notification via WhatsApp"
+      ],
+      "whatsapp_notifications": ["team_lead", "customer"],
+      "auto_escalation_time_hours": 2
+    },
+    "level_2": {
+      "title": "Management Escalation", 
+      "triggers": ["sla_breach", "level_1_timeout", "customer_escalation"],
+      "escalated_to": ["department_manager", "operations_head"],
+      "actions": [
+        "Manager intervention and process review",
+        "Customer escalation call",
+        "Partner performance review"
+      ],
+      "whatsapp_notifications": ["manager", "customer", "partner"],
+      "auto_escalation_time_hours": 4
+    },
+    "level_3": {
+      "title": "Regional Escalation",
+      "triggers": ["multiple_sla_breaches", "level_2_timeout", "customer_threat"],
+      "escalated_to": ["regional_head", "quality_assurance"],
+      "actions": [
+        "Regional investigation and process audit",
+        "Compensation review and approval",
+        "Partner contract review"
+      ],
+      "whatsapp_notifications": ["all_stakeholders", "management"],
+      "auto_escalation_time_hours": 8
+    },
+    "level_4": {
+      "title": "Executive Escalation",
+      "triggers": ["critical_sla_failures", "level_3_timeout", "legal_threat"],
+      "escalated_to": ["ceo_director", "partner_relations"],
+      "actions": [
+        "Executive intervention and policy review",
+        "Partner escalation to Samsung/Bajaj Allianz",
+        "Legal and compliance review"
+      ],
+      "whatsapp_notifications": ["executive_team", "partners", "customer"],
+      "auto_escalation_time_hours": 12
+    }
+  },
+  "whatsapp_commands": {
+    "customer_commands": {
+      "*STATUS [CLAIM_NUMBER]*": "Check current claim status and SLA compliance",
+      "*NEW CLAIM*": "Start new claim process with automatic SLA tracking",
+      "*SUPPORT*": "Connect with human agent (escalates if SLA breached)",
+      "*TRACK [ORDER_ID]*": "Track device pickup/delivery with real-time updates",
+      "*ESCALATE [CLAIM_ID]*": "Customer-initiated escalation request"
+    },
+    "partner_commands": {
+      "*DASHBOARD*": "Get partner dashboard with SLA performance metrics",
+      "*UPDATE [CLAIM_ID] [STATUS]*": "Update claim status (auto-calculates SLA)",
+      "*SLA STATUS [CASE_ID]*": "Check detailed SLA compliance for specific case",
+      "*ESCALATE [CASE_ID] [REASON]*": "Manual escalation with documented reason", 
+      "*SLA REPORT*": "Get current SLA performance and breach alerts",
+      "*URGENT [CASE_ID]*": "Mark case as urgent priority (bypasses normal SLA)",
+      "*ASSIGN [CLAIM_ID] [PARTNER]*": "Reassign claim (resets SLA timers)",
+      "*BREACH ALERT*": "Get immediate notification of all SLA breaches"
+    },
+    "management_commands": {
+      "*SLA DASHBOARD*": "Complete SLA performance overview",
+      "*ESCALATION LIST*": "All active escalations and their levels", 
+      "*BREACH REPORT*": "Detailed analysis of SLA breaches",
+      "*PARTNER PERFORMANCE*": "SLA compliance by partner",
+      "*CUSTOMER SATISFACTION*": "SLA impact on customer satisfaction scores",
+      "*PROCESS REVIEW [CASE_ID]*": "Detailed process timeline review"
+    }
+  },
+  "notification_templates": {
+    "sla_warning": "🟡 SLA WARNING\nCase: {case_id}\nTime Elapsed: {elapsed_time}\nTarget: {target_time}\nNext Escalation: {next_escalation_time}",
+    "sla_breach": "🔴 SLA BREACH ALERT\nCase: {case_id}\nBreach Time: {breach_duration}\nEscalation Level: {escalation_level}\nImmediate Action Required!",
+    "escalation_triggered": "⬆️ ESCALATION TRIGGERED\nCase: {case_id}\nLevel: {escalation_level}\nEscalated To: {escalated_to}\nReason: {escalation_reason}",
+    "sla_recovered": "✅ SLA RECOVERED\nCase: {case_id}\nRecovery Time: {recovery_time}\nFinal Status: {final_status}"
+  },
+  "performance_metrics": {
+    "target_sla_compliance": 95,
+    "maximum_escalation_rate": 5,
+    "customer_satisfaction_target": 4.5,
+    "average_resolution_time_hours": 24,
+    "first_call_resolution_target": 80
+  }
+}
