@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bijnor Services - Samsung Service Center & Claims Processing</title>
+    <title>Bijnor Services - WhatsApp-Powered CRM & Claims Processing</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    
+    <!-- Google OAuth -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- Facebook SDK -->
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v18.0&appId=your-app-id"></script>
+    
     <style>
-        .hero-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .hero-gradient { background: linear-gradient(135deg, #25D366 0%, #128C7E 50%, #075E54 100%); }
+        .whatsapp-gradient { background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); }
         .card-hover { transition: all 0.3s ease; }
         .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .status-registered { background: #dbeafe; color: #1e40af; }
@@ -21,25 +29,76 @@
         .dealer-level-2 { background: #dbeafe; color: #1e40af; }
         .dealer-level-3 { background: #fef3c7; color: #d97706; }
         .dealer-level-4 { background: #dcfce7; color: #166534; }
+        .pulse-animation { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 40px;
+            right: 40px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 2px 2px 3px #999;
+            z-index: 100;
+            animation: pulse 2s infinite;
+        }
+        .whatsapp-float:hover {
+            background-color: #128c7e;
+            animation: none;
+        }
+        .social-btn {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .social-btn:hover {
+            transform: scale(1.05);
+            border-color: currentColor;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/918006999806?text=Hi! I need assistance with my device service or insurance claim." target="_blank" class="whatsapp-float">
+        <i class="fab fa-whatsapp mt-4"></i>
+    </a>
+
     <!-- Navigation -->
     <nav class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
-                        <i class="fas fa-tools text-blue-600 text-2xl mr-2"></i>
+                        <i class="fab fa-whatsapp text-green-600 text-2xl mr-2"></i>
                         <span class="text-xl font-bold text-gray-800">Bijnor Services</span>
-                        <span class="ml-2 text-sm text-gray-500">Samsung • Bajaj Allianz</span>
+                        <span class="ml-2 text-sm text-gray-500">WhatsApp-Powered CRM</span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button onclick="showSection('home')" class="nav-btn text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Home</button>
-                    <button onclick="showSection('services')" class="nav-btn text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Services</button>
-                    <button onclick="showSection('claims')" class="nav-btn text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Claims</button>
-                    <button onclick="showSection('contact')" class="nav-btn text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Contact</button>
+                    <button onclick="showSection('home')" class="nav-btn text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Home</button>
+                    <button onclick="showSection('whatsapp-crm')" class="nav-btn text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fab fa-whatsapp mr-1"></i>CRM
+                    </button>
+                    <button onclick="showSection('claims')" class="nav-btn text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">Claims</button>
+                    <button onclick="showSection('login')" class="nav-btn bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-in-alt mr-1"></i>Login
+                    </button>
                 </div>
             </div>
         </div>
@@ -52,124 +111,219 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
                     <h1 class="text-4xl md:text-6xl font-bold mb-6">
-                        <i class="fas fa-mobile-alt mr-4"></i>Bijnor Services
+                        <i class="fab fa-whatsapp mr-4 pulse-animation"></i>Bijnor Services
                     </h1>
-                    <p class="text-xl md:text-2xl mb-8 text-blue-100">
-                        Authorized Samsung Service Center • Bajaj Allianz Insurance Claims Partner
+                    <p class="text-xl md:text-2xl mb-4 text-green-100">
+                        WhatsApp-Powered CRM & Claims Processing
+                    </p>
+                    <p class="text-lg mb-8 text-green-200">
+                        Samsung Service Center • Bajaj Allianz Insurance • Real-time WhatsApp Updates
                     </p>
                     <div class="flex flex-col md:flex-row gap-4 justify-center">
-                        <button onclick="showSection('services')" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
-                            <i class="fas fa-wrench mr-2"></i>Samsung Services
+                        <a href="https://wa.me/918006999806?text=Hi! I want to submit a new claim or check my existing claim status." class="whatsapp-gradient text-white px-8 py-4 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105">
+                            <i class="fab fa-whatsapp mr-2"></i>Start WhatsApp CRM
+                        </a>
+                        <button onclick="showSection('claims')" class="bg-white text-green-600 px-8 py-4 rounded-lg font-semibold hover:bg-green-50 transition-colors">
+                            <i class="fas fa-shield-alt mr-2"></i>Submit Claim Online
                         </button>
-                        <button onclick="showSection('claims')" class="bg-yellow-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-yellow-600 transition-colors">
-                            <i class="fas fa-shield-alt mr-2"></i>Insurance Claims
-                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WhatsApp Features -->
+        <div class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-gray-900 mb-4">WhatsApp-First Experience</h2>
+                <p class="text-center text-gray-600 mb-12">Everything happens through WhatsApp - No app downloads needed!</p>
+                
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div class="card-hover bg-green-50 p-6 rounded-lg text-center border border-green-200">
+                        <i class="fab fa-whatsapp text-5xl text-green-500 mb-4"></i>
+                        <h3 class="font-semibold text-gray-900 mb-2">Submit Claims</h3>
+                        <p class="text-gray-600 text-sm">Send photos & details via WhatsApp</p>
+                    </div>
+                    <div class="card-hover bg-blue-50 p-6 rounded-lg text-center border border-blue-200">
+                        <i class="fas fa-bell text-5xl text-blue-500 mb-4"></i>
+                        <h3 class="font-semibold text-gray-900 mb-2">Real-time Updates</h3>
+                        <p class="text-gray-600 text-sm">Get instant status notifications</p>
+                    </div>
+                    <div class="card-hover bg-purple-50 p-6 rounded-lg text-center border border-purple-200">
+                        <i class="fas fa-robot text-5xl text-purple-500 mb-4"></i>
+                        <h3 class="font-semibold text-gray-900 mb-2">AI Assistant</h3>
+                        <p class="text-gray-600 text-sm">24/7 automated support bot</p>
+                    </div>
+                    <div class="card-hover bg-yellow-50 p-6 rounded-lg text-center border border-yellow-200">
+                        <i class="fas fa-user-friends text-5xl text-yellow-500 mb-4"></i>
+                        <h3 class="font-semibold text-gray-900 mb-2">Human Support</h3>
+                        <p class="text-gray-600 text-sm">Connect with real agents instantly</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Contact Channels -->
-        <div class="py-16 bg-white">
+        <div class="py-16 bg-gray-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Get in Touch</h2>
+                <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Multiple Ways to Connect</h2>
                 <div class="grid md:grid-cols-4 gap-6">
                     <a href="https://wa.me/918006999806" target="_blank" class="card-hover bg-green-50 p-6 rounded-lg text-center border border-green-200">
                         <i class="fab fa-whatsapp text-4xl text-green-500 mb-4"></i>
                         <h3 class="font-semibold text-gray-900">WhatsApp Support</h3>
                         <p class="text-gray-600 text-sm">+91 8006999806</p>
+                        <span class="inline-block bg-green-500 text-white text-xs px-2 py-1 rounded-full mt-2">24/7 Active</span>
                     </a>
                     <a href="https://www.facebook.com/bijnorservices" target="_blank" class="card-hover bg-blue-50 p-6 rounded-lg text-center border border-blue-200">
-                        <i class="fab fa-facebook text-4xl text-blue-500 mb-4"></i>
-                        <h3 class="font-semibold text-gray-900">Facebook</h3>
-                        <p class="text-gray-600 text-sm">Follow Us</p>
+                        <i class="fab fa-facebook-messenger text-4xl text-blue-500 mb-4"></i>
+                        <h3 class="font-semibold text-gray-900">Messenger</h3>
+                        <p class="text-gray-600 text-sm">Facebook Chat Support</p>
                     </a>
                     <a href="http://www.bijnorservices.in/" target="_blank" class="card-hover bg-purple-50 p-6 rounded-lg text-center border border-purple-200">
                         <i class="fas fa-globe text-4xl text-purple-500 mb-4"></i>
                         <h3 class="font-semibold text-gray-900">Website</h3>
-                        <p class="text-gray-600 text-sm">Visit Portal</p>
+                        <p class="text-gray-600 text-sm">Official Portal</p>
                     </a>
                     <a href="https://maps.app.goo.gl/Q8jusQuafzFFhJ278" target="_blank" class="card-hover bg-red-50 p-6 rounded-lg text-center border border-red-200">
                         <i class="fas fa-map-marker-alt text-4xl text-red-500 mb-4"></i>
-                        <h3 class="font-semibold text-gray-900">Location</h3>
-                        <p class="text-gray-600 text-sm">Get Directions</p>
+                        <h3 class="font-semibold text-gray-900">Visit Us</h3>
+                        <p class="text-gray-600 text-sm">Civil Line, Bijnor</p>
                     </a>
                 </div>
             </div>
         </div>
-
-        <!-- Service Stats -->
-        <div class="py-16 bg-gray-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid md:grid-cols-4 gap-8">
-                    <div class="text-center">
-                        <div class="text-4xl font-bold text-blue-600 mb-2">5000+</div>
-                        <div class="text-gray-600">Devices Repaired</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-4xl font-bold text-green-600 mb-2">98%</div>
-                        <div class="text-gray-600">Customer Satisfaction</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-4xl font-bold text-yellow-600 mb-2">24/7</div>
-                        <div class="text-gray-600">Support Available</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-4xl font-bold text-purple-600 mb-2">1000+</div>
-                        <div class="text-gray-600">Claims Processed</div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- Services Section -->
-    <div id="services-section" class="section hidden">
+    <!-- WhatsApp CRM Section -->
+    <div id="whatsapp-crm-section" class="section hidden">
         <div class="py-16">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Our Services</h2>
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-gray-900 mb-4">
+                    <i class="fab fa-whatsapp text-green-500 mr-3"></i>WhatsApp CRM Dashboard
+                </h2>
+                <p class="text-center text-gray-600 mb-12">Manage everything through WhatsApp integration</p>
                 
-                <!-- Samsung Services -->
-                <div class="mb-16">
-                    <h3 class="text-2xl font-semibold text-gray-800 mb-8 flex items-center">
-                        <i class="fas fa-mobile-alt text-blue-600 mr-3"></i>
-                        Samsung Device Services
-                    </h3>
-                    <div class="grid md:grid-cols-3 gap-6">
-                        <div class="bg-white p-6 rounded-lg shadow-md card-hover">
-                            <i class="fas fa-wrench text-3xl text-blue-500 mb-4"></i>
-                            <h4 class="font-semibold text-gray-900 mb-2">Device Repair</h4>
-                            <p class="text-gray-600">Professional Samsung device repair with genuine parts</p>
-                        </div>
-                        <div class="bg-white p-6 rounded-lg shadow-md card-hover">
-                            <i class="fas fa-shield-alt text-3xl text-green-500 mb-4"></i>
-                            <h4 class="font-semibold text-gray-900 mb-2">Warranty Service</h4>
-                            <p class="text-gray-600">Authorized warranty repairs and replacements</p>
-                        </div>
-                        <div class="bg-white p-6 rounded-lg shadow-md card-hover">
-                            <i class="fas fa-tools text-3xl text-purple-500 mb-4"></i>
-                            <h4 class="font-semibold text-gray-900 mb-2">Maintenance</h4>
-                            <p class="text-gray-600">Regular maintenance and software updates</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Insurance Services -->
-                <div>
-                    <h3 class="text-2xl font-semibold text-gray-800 mb-8 flex items-center">
-                        <i class="fas fa-umbrella text-yellow-600 mr-3"></i>
-                        Bajaj Allianz Insurance Claims
+                <!-- WhatsApp Commands Guide -->
+                <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                    <h3 class="text-2xl font-semibold mb-6 flex items-center">
+                        <i class="fas fa-terminal text-blue-500 mr-3"></i>WhatsApp Commands
                     </h3>
                     <div class="grid md:grid-cols-2 gap-6">
-                        <div class="bg-white p-6 rounded-lg shadow-md card-hover">
-                            <i class="fas fa-truck text-3xl text-blue-500 mb-4"></i>
-                            <h4 class="font-semibold text-gray-900 mb-2">Pickup & Drop Service</h4>
-                            <p class="text-gray-600">Complete claim handling with device pickup and delivery</p>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-4">Customer Commands</h4>
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <code class="text-green-600 font-mono">*STATUS [CLAIM_NUMBER]*</code>
+                                    <p class="text-sm text-gray-600">Check claim status</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <code class="text-green-600 font-mono">*NEW CLAIM*</code>
+                                    <p class="text-sm text-gray-600">Start new claim process</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <code class="text-green-600 font-mono">*SUPPORT*</code>
+                                    <p class="text-sm text-gray-600">Connect with human agent</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <code class="text-green-600 font-mono">*TRACK [ORDER_ID]*</code>
+                                    <p class="text-sm text-gray-600">Track device pickup/delivery</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="bg-white p-6 rounded-lg shadow-md card-hover">
-                            <i class="fas fa-money-bill-wave text-3xl text-green-500 mb-4"></i>
-                            <h4 class="font-semibold text-gray-900 mb-2">Reimbursement Claims</h4>
-                            <p class="text-gray-600">Process external repair reimbursements</p>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-4">Partner Commands</h4>
+                            <div class="space-y-3">
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <code class="text-blue-600 font-mono">*DASHBOARD*</code>
+                                    <p class="text-sm text-gray-600">Get partner dashboard</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <code class="text-blue-600 font-mono">*UPDATE [CLAIM_ID] [STATUS]*</code>
+                                    <p class="text-sm text-gray-600">Update claim status</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <code class="text-blue-600 font-mono">*ASSIGN [CLAIM_ID] [PARTNER]*</code>
+                                    <p class="text-sm text-gray-600">Assign claim to partner</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <code class="text-blue-600 font-mono">*REPORTS*</code>
+                                    <p class="text-sm text-gray-600">Get performance reports</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live WhatsApp Integration -->
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Customer Panel -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center">
+                            <i class="fas fa-users text-green-500 mr-2"></i>Customer Experience
+                        </h3>
+                        <div class="space-y-4">
+                            <a href="https://wa.me/918006999806?text=*NEW CLAIM* - I want to submit a new insurance claim for my device" 
+                               target="_blank" 
+                               class="block w-full bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fab fa-whatsapp mr-2"></i>Start New Claim via WhatsApp
+                            </a>
+                            <a href="https://wa.me/918006999806?text=*STATUS BA2025* - Please check my claim status" 
+                               target="_blank" 
+                               class="block w-full bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-search mr-2"></i>Check Claim Status
+                            </a>
+                            <a href="https://wa.me/918006999806?text=*SUPPORT* - I need help with my device service" 
+                               target="_blank" 
+                               class="block w-full bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors">
+                                <i class="fas fa-headset mr-2"></i>Get Human Support
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Partner Panel -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center">
+                            <i class="fas fa-briefcase text-blue-500 mr-2"></i>Partner Access
+                        </h3>
+                        <div class="space-y-4">
+                            <a href="https://wa.me/918006999806?text=*DASHBOARD* - Show my partner dashboard with pending claims" 
+                               target="_blank" 
+                               class="block w-full bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-chart-line mr-2"></i>Partner Dashboard
+                            </a>
+                            <a href="https://wa.me/918006999806?text=*UPDATE BA2025001 IN_PROGRESS* - Updating claim status to in progress" 
+                               target="_blank" 
+                               class="block w-full bg-yellow-600 text-white p-4 rounded-lg hover:bg-yellow-700 transition-colors">
+                                <i class="fas fa-edit mr-2"></i>Update Claim Status
+                            </a>
+                            <a href="https://wa.me/918006999806?text=*REPORTS* - Send me today's performance report" 
+                               target="_blank" 
+                               class="block w-full bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-file-alt mr-2"></i>Get Reports
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WhatsApp Bot Features -->
+                <div class="mt-12 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg p-8 text-white">
+                    <h3 class="text-2xl font-semibold mb-6 text-center">
+                        <i class="fas fa-robot mr-2"></i>AI-Powered WhatsApp Bot Features
+                    </h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <i class="fas fa-clock text-4xl mb-3"></i>
+                            <h4 class="font-semibold mb-2">24/7 Availability</h4>
+                            <p class="text-sm opacity-90">Instant responses any time of day</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-language text-4xl mb-3"></i>
+                            <h4 class="font-semibold mb-2">Multi-Language</h4>
+                            <p class="text-sm opacity-90">Hindi, English, and Hinglish support</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-camera text-4xl mb-3"></i>
+                            <h4 class="font-semibold mb-2">Image Processing</h4>
+                            <p class="text-sm opacity-90">Analyze device damage photos</p>
                         </div>
                     </div>
                 </div>
@@ -177,43 +331,141 @@
         </div>
     </div>
 
-    <!-- Claims Section -->
+    <!-- Login Section -->
+    <div id="login-section" class="section hidden">
+        <div class="py-16">
+            <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-center text-gray-900 mb-8">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Quick Login
+                    </h2>
+                    
+                    <!-- Social Login Buttons -->
+                    <div class="space-y-4 mb-6">
+                        <button onclick="signInWithGoogle()" class="social-btn w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-50 transition-colors">
+                            <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                            Continue with Google
+                        </button>
+                        
+                        <button onclick="signInWithFacebook()" class="social-btn w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fab fa-facebook-f text-xl mr-3"></i>
+                            Continue with Facebook
+                        </button>
+                        
+                        <button onclick="signInWithApple()" class="social-btn w-full flex items-center justify-center px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                            <i class="fab fa-apple text-xl mr-3"></i>
+                            Continue with Apple
+                        </button>
+
+                        <a href="https://wa.me/918006999806?text=*LOGIN* - I want to access my partner dashboard" target="_blank" class="social-btn w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fab fa-whatsapp text-xl mr-3"></i>
+                            Login via WhatsApp
+                        </a>
+                    </div>
+
+                    <div class="relative mb-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">Or login with credentials</span>
+                        </div>
+                    </div>
+
+                    <!-- Traditional Login Form -->
+                    <form id="loginForm" class="space-y-4">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Username/Email</label>
+                            <input type="text" id="loginUsername" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Password</label>
+                            <input type="password" id="loginPassword" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                            </label>
+                            <a href="#" class="text-sm text-green-600 hover:text-green-500">Forgot password?</a>
+                        </div>
+                        <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                            Sign In
+                        </button>
+                    </form>
+
+                    <div class="mt-6 text-center">
+                        <p class="text-sm text-gray-600">
+                            New partner? 
+                            <a href="https://wa.me/918006999806?text=*REGISTER* - I want to become a partner" target="_blank" class="text-green-600 hover:text-green-500 font-medium">
+                                Register via WhatsApp
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Claims Section -->
     <div id="claims-section" class="section hidden">
         <div class="py-16">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Submit Insurance Claim</h2>
+                <h2 class="text-3xl font-bold text-center text-gray-900 mb-4">Submit Insurance Claim</h2>
+                <p class="text-center text-gray-600 mb-8">You'll get instant WhatsApp updates throughout the process</p>
+                
+                <!-- WhatsApp Integration Notice -->
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
+                    <div class="flex items-center">
+                        <i class="fab fa-whatsapp text-green-500 text-2xl mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-green-800">WhatsApp Integration Active</h4>
+                            <p class="text-green-700 text-sm">After submission, you'll receive instant WhatsApp confirmation and updates at each step.</p>
+                        </div>
+                    </div>
+                </div>
                 
                 <form id="claimsForm" class="bg-white p-8 rounded-lg shadow-lg">
                     <!-- Customer Information -->
                     <div class="mb-8">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Customer Information</h3>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-user text-blue-500 mr-2"></i>Customer Information
+                        </h3>
                         <div class="grid md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-gray-700 font-medium mb-2">Full Name *</label>
-                                <input type="text" id="customerName" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input type="text" id="customerName" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                             </div>
                             <div>
-                                <label class="block text-gray-700 font-medium mb-2">Phone Number *</label>
-                                <input type="tel" id="customerPhone" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <label class="block text-gray-700 font-medium mb-2">WhatsApp Number *</label>
+                                <input type="tel" id="customerPhone" required placeholder="+91 XXXXXXXXXX" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <p class="text-sm text-gray-500 mt-1">You'll receive all updates on this WhatsApp number</p>
                             </div>
                             <div>
-                                <label class="block text-gray-700 font-medium mb-2">Email</label>
-                                <input type="email" id="customerEmail" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <label class="block text-gray-700 font-medium mb-2">Email (Optional)</label>
+                                <input type="email" id="customerEmail" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-medium mb-2">Address *</label>
-                                <textarea id="customerAddress" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="2"></textarea>
+                                <textarea id="customerAddress" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="2"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <!-- Device Information -->
                     <div class="mb-8">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Device Information</h3>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-mobile-alt text-green-500 mr-2"></i>Device Information
+                        </h3>
                         <div class="grid md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-gray-700 font-medium mb-2">Device Brand *</label>
-                                <select id="deviceBrand" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <select id="deviceBrand" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                                     <option value="">Select Brand</option>
                                     <option value="Samsung">Samsung</option>
                                     <option value="Apple">Apple</option>
@@ -231,26 +483,28 @@
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-medium mb-2">Device Model *</label>
-                                <input type="text" id="deviceModel" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input type="text" id="deviceModel" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-medium mb-2">IMEI Number *</label>
-                                <input type="text" id="deviceImei" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input type="text" id="deviceImei" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-medium mb-2">Purchase Date *</label>
-                                <input type="date" id="purchaseDate" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input type="date" id="purchaseDate" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                             </div>
                         </div>
                     </div>
 
                     <!-- Incident Details -->
                     <div class="mb-8">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Incident Details</h3>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>Incident Details
+                        </h3>
                         <div class="grid md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-gray-700 font-medium mb-2">Incident Type *</label>
-                                <select id="incidentType" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <select id="incidentType" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                                     <option value="">Select Type</option>
                                     <option value="Physical Damage">Physical Damage</option>
                                     <option value="Liquid Damage">Liquid Damage</option>
@@ -262,105 +516,52 @@
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-medium mb-2">Incident Date *</label>
-                                <input type="date" id="incidentDate" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input type="date" id="incidentDate" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block text-gray-700 font-medium mb-2">Incident Description *</label>
-                                <textarea id="incidentDescription" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3"></textarea>
+                                <textarea id="incidentDescription" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="3"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <!-- Service Type -->
                     <div class="mb-8">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Service Preference</h3>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-cogs text-purple-500 mr-2"></i>Service Preference
+                        </h3>
                         <div class="grid md:grid-cols-2 gap-4">
-                            <div class="border border-gray-300 p-4 rounded-lg">
-                                <label class="flex items-center">
-                                    <input type="radio" name="serviceType" value="Pickup & Drop" class="mr-3">
+                            <div class="border border-gray-300 p-4 rounded-lg hover:border-green-500 transition-colors">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="serviceType" value="Pickup & Drop" class="mr-3 text-green-600">
                                     <div>
                                         <div class="font-semibold">Pickup & Drop</div>
                                         <div class="text-gray-600 text-sm">We collect and deliver your device</div>
+                                        <div class="text-green-600 text-xs mt-1">✓ WhatsApp tracking updates</div>
                                     </div>
                                 </label>
                             </div>
-                            <div class="border border-gray-300 p-4 rounded-lg">
-                                <label class="flex items-center">
-                                    <input type="radio" name="serviceType" value="Reimbursement" class="mr-3">
+                            <div class="border border-gray-300 p-4 rounded-lg hover:border-green-500 transition-colors">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="serviceType" value="Reimbursement" class="mr-3 text-green-600">
                                     <div>
                                         <div class="font-semibold">Reimbursement</div>
                                         <div class="text-gray-600 text-sm">Get repaired externally and claim reimbursement</div>
+                                        <div class="text-green-600 text-xs mt-1">✓ WhatsApp document submission</div>
                                     </div>
                                 </label>
                             </div>
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                        <i class="fas fa-paper-plane mr-2"></i>Submit Claim
+                    <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg">
+                        <i class="fab fa-whatsapp mr-2"></i>Submit Claim & Get WhatsApp Updates
                     </button>
+                    
+                    <p class="text-center text-sm text-gray-600 mt-4">
+                        After submission, you'll be redirected to WhatsApp for instant confirmation and live tracking.
+                    </p>
                 </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Contact Section -->
-    <div id="contact-section" class="section hidden">
-        <div class="py-16">
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Contact Information</h2>
-                
-                <div class="grid md:grid-cols-2 gap-8">
-                    <!-- Contact Details -->
-                    <div class="bg-white p-8 rounded-lg shadow-lg">
-                        <h3 class="text-xl font-semibold mb-6">Get in Touch</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center">
-                                <i class="fas fa-phone text-blue-500 w-6"></i>
-                                <span class="ml-3">+91 8006999806</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fas fa-envelope text-blue-500 w-6"></i>
-                                <span class="ml-3">info@bijnorservices.in</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fas fa-clock text-blue-500 w-6"></i>
-                                <span class="ml-3">10:00 AM - 6:30 PM, Mon-Sat</span>
-                            </div>
-                            <div class="flex items-start">
-                                <i class="fas fa-map-marker-alt text-blue-500 w-6 mt-1"></i>
-                                <span class="ml-3">Civil Line, Bijnor, UP 246701</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Links -->
-                    <div class="bg-white p-8 rounded-lg shadow-lg">
-                        <h3 class="text-xl font-semibold mb-6">Quick Links</h3>
-                        <div class="space-y-3">
-                            <a href="https://wa.me/918006999806" target="_blank" class="flex items-center text-green-600 hover:text-green-700">
-                                <i class="fab fa-whatsapp w-6"></i>
-                                <span class="ml-3">WhatsApp Support</span>
-                            </a>
-                            <a href="https://wa.me/message/ZZ7O4VI3C64NA" target="_blank" class="flex items-center text-green-600 hover:text-green-700">
-                                <i class="fab fa-whatsapp w-6"></i>
-                                <span class="ml-3">WhatsApp Business</span>
-                            </a>
-                            <a href="https://www.facebook.com/bijnorservices" target="_blank" class="flex items-center text-blue-600 hover:text-blue-700">
-                                <i class="fab fa-facebook w-6"></i>
-                                <span class="ml-3">Facebook Page</span>
-                            </a>
-                            <a href="https://g.page/r/CTiSXfQxuNOZEBM/review" target="_blank" class="flex items-center text-red-600 hover:text-red-700">
-                                <i class="fab fa-google w-6"></i>
-                                <span class="ml-3">Google Reviews</span>
-                            </a>
-                            <a href="https://servicecenter.samsungdigitalservicecenter.com/authorised-samsung-service-center-bijnor-services-mobile-phone-repair-service-civil-line-bijnor-236981/Home" target="_blank" class="flex items-center text-blue-600 hover:text-blue-700">
-                                <i class="fas fa-external-link-alt w-6"></i>
-                                <span class="ml-3">Samsung Portal</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -368,29 +569,40 @@
     <!-- Footer -->
     <footer class="bg-gray-800 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid md:grid-cols-3 gap-8">
+            <div class="grid md:grid-cols-4 gap-8">
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">Bijnor Services</h3>
-                    <p class="text-gray-300">Authorized Samsung Service Center and Bajaj Allianz Insurance Claims Partner</p>
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <i class="fab fa-whatsapp text-green-400 mr-2"></i>Bijnor Services
+                    </h3>
+                    <p class="text-gray-300">WhatsApp-powered CRM for Samsung Service Center and Bajaj Allianz Insurance Claims</p>
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">Services</h3>
+                    <h3 class="text-lg font-semibold mb-4">WhatsApp Services</h3>
                     <ul class="text-gray-300 space-y-2">
-                        <li>Samsung Device Repair</li>
-                        <li>Warranty Services</li>
-                        <li>Insurance Claims Processing</li>
-                        <li>Technical Support</li>
+                        <li>Real-time Claim Updates</li>
+                        <li>24/7 AI Support Bot</li>
+                        <li>Photo & Document Submission</li>
+                        <li>Instant Status Tracking</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Commands</h3>
+                    <ul class="text-gray-300 space-y-2">
+                        <li><code>*NEW CLAIM*</code></li>
+                        <li><code>*STATUS [ID]*</code></li>
+                        <li><code>*SUPPORT*</code></li>
+                        <li><code>*TRACK [ORDER]*</code></li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Contact</h3>
                     <p class="text-gray-300">Civil Line, Bijnor, UP 246701</p>
-                    <p class="text-gray-300">Phone: +91 8006999806</p>
-                    <p class="text-gray-300">Email: info@bijnorservices.in</p>
+                    <p class="text-gray-300">WhatsApp: +91 8006999806</p>
+                    <p class="text-gray-300">Available: 24/7 via WhatsApp</p>
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center">
-                <p class="text-gray-400">&copy; 2025 Bijnor Services. All rights reserved.</p>
+                <p class="text-gray-400">&copy; 2025 Bijnor Services. WhatsApp-First CRM Experience.</p>
             </div>
         </div>
     </footer>
@@ -398,29 +610,92 @@
     <script>
         // Navigation functionality
         function showSection(sectionName) {
-            // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.add('hidden');
             });
-            
-            // Show selected section
             document.getElementById(sectionName + '-section').classList.remove('hidden');
             
-            // Update active nav button
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-100', 'text-blue-600');
+                btn.classList.remove('bg-green-100', 'text-green-600');
             });
-            event.target.classList.add('bg-blue-100', 'text-blue-600');
+            if (event && event.target) {
+                event.target.classList.add('bg-green-100', 'text-green-600');
+            }
         }
 
-        // Claims form functionality
+        // Social Login Functions
+        function signInWithGoogle() {
+            // Initialize Google OAuth
+            google.accounts.id.initialize({
+                client_id: 'your-google-client-id',
+                callback: handleGoogleSignIn
+            });
+            google.accounts.id.prompt();
+        }
+
+        function handleGoogleSignIn(response) {
+            // Handle Google sign-in response
+            const userData = parseJwt(response.credential);
+            console.log('Google user:', userData);
+            
+            // Store user data and redirect
+            storeUserSession({
+                provider: 'google',
+                name: userData.name,
+                email: userData.email,
+                picture: userData.picture,
+                loginTime: new Date().toISOString()
+            });
+            
+            // Redirect to WhatsApp for CRM access
+            const whatsappMessage = `*LOGIN SUCCESS* - ${userData.name} (${userData.email}) logged in via Google. Please provide dashboard access.`;
+            window.open(`https://wa.me/918006999806?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+        }
+
+        function signInWithFacebook() {
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    FB.api('/me', {fields: 'name,email,picture'}, function(user) {
+                        storeUserSession({
+                            provider: 'facebook',
+                            name: user.name,
+                            email: user.email,
+                            picture: user.picture.data.url,
+                            loginTime: new Date().toISOString()
+                        });
+                        
+                        const whatsappMessage = `*LOGIN SUCCESS* - ${user.name} (${user.email}) logged in via Facebook. Please provide dashboard access.`;
+                        window.open(`https://wa.me/918006999806?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+                    });
+                }
+            }, {scope: 'email'});
+        }
+
+        function signInWithApple() {
+            // Apple Sign-In implementation would go here
+            alert('Apple Sign-In integration requires Apple Developer account setup. For now, use WhatsApp login!');
+            const whatsappMessage = `*LOGIN REQUEST* - I want to login using Apple ID. Please help me access the dashboard.`;
+            window.open(`https://wa.me/918006999806?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+        }
+
+        // Traditional login form
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Store credentials and redirect to WhatsApp for verification
+            const whatsappMessage = `*LOGIN REQUEST* - Username: ${username} | Please verify my credentials and provide dashboard access.`;
+            window.open(`https://wa.me/918006999806?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+        });
+
+        // Enhanced claims form with WhatsApp integration
         document.getElementById('claimsForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Generate claim number
             const claimNumber = 'BA2025' + String(Date.now()).slice(-6);
             
-            // Collect form data
             const formData = {
                 claimNumber: claimNumber,
                 customerName: document.getElementById('customerName').value,
@@ -437,7 +712,7 @@
                 serviceType: document.querySelector('input[name="serviceType"]:checked')?.value
             };
             
-            // Store in localStorage (since this is a static site)
+            // Store in localStorage
             let claims = JSON.parse(localStorage.getItem('bijnorClaims') || '[]');
             claims.push({
                 ...formData,
@@ -446,25 +721,108 @@
             });
             localStorage.setItem('bijnorClaims', JSON.stringify(claims));
             
+            // Create detailed WhatsApp message
+            const whatsappMessage = `*NEW CLAIM SUBMISSION*
+
+🆔 Claim Number: ${claimNumber}
+👤 Name: ${formData.customerName}
+📱 Phone: ${formData.customerPhone}
+📧 Email: ${formData.customerEmail}
+📍 Address: ${formData.customerAddress}
+
+📱 Device: ${formData.deviceBrand} ${formData.deviceModel}
+🔢 IMEI: ${formData.deviceImei}
+📅 Purchase Date: ${formData.purchaseDate}
+
+🚨 Incident: ${formData.incidentType}
+📅 Incident Date: ${formData.incidentDate}
+📝 Description: ${formData.incidentDescription}
+
+🛠️ Service Type: ${formData.serviceType}
+
+Please confirm receipt and provide next steps for claim processing.`;
+            
             // Show success message
-            alert(`Claim submitted successfully!\n\nClaim Number: ${claimNumber}\n\nWe will contact you within 24 hours for further processing. You can also reach us on WhatsApp at +91 8006999806 for any updates.`);
+            alert(`🎉 Claim Submitted Successfully!
+
+📋 Claim Number: ${claimNumber}
+
+✅ You'll now be redirected to WhatsApp for:
+• Instant confirmation
+• Real-time updates
+• Photo submission (if needed)
+• Live tracking
+
+Our team will contact you within 30 minutes!`);
             
             // Reset form
             document.getElementById('claimsForm').reset();
             
-            // Redirect to WhatsApp for immediate support
+            // Redirect to WhatsApp with claim details
             setTimeout(() => {
-                window.open(`https://wa.me/918006999806?text=Hi! I just submitted a claim with number ${claimNumber}. Please confirm receipt and next steps.`, '_blank');
+                window.open(`https://wa.me/918006999806?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
             }, 2000);
         });
+
+        // Utility functions
+        function parseJwt(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        function storeUserSession(userData) {
+            localStorage.setItem('bijnorUserSession', JSON.stringify(userData));
+            console.log('User session stored:', userData);
+        }
 
         // Set today as max date for incident and purchase dates
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('incidentDate').max = today;
         document.getElementById('purchaseDate').max = today;
-        
-        // Set default incident date to today
         document.getElementById('incidentDate').value = today;
+
+        // Initialize Facebook SDK
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId: 'your-facebook-app-id',
+                cookie: true,
+                xfbml: true,
+                version: 'v18.0'
+            });
+        };
+
+        // Show WhatsApp notification on page load
+        setTimeout(() => {
+            if (!localStorage.getItem('whatsappNotificationShown')) {
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-20 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm';
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fab fa-whatsapp text-2xl mr-3"></i>
+                        <div>
+                            <div class="font-semibold">WhatsApp CRM Active!</div>
+                            <div class="text-sm">Try sending "*NEW CLAIM*" to get started</div>
+                        </div>
+                        <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 10000);
+                
+                localStorage.setItem('whatsappNotificationShown', 'true');
+            }
+        }, 3000);
     </script>
 </body>
 </html>
